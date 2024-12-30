@@ -30,7 +30,7 @@ const Callback = () => {
         }})
         .then((response) => {
           localStorage.setItem("spotifyAccessToken", response.data.access_token);
-          navigate("/playlists");
+          navigate("/navigator");
         })
         .catch((err) => console.error("Error exchanging code:", err));
     }
