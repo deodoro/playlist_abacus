@@ -39,6 +39,7 @@ const Navigator = () => {
     };
 
     const fetchSongs = async (playlistId) => {
+        console.log("fetch")
         const token = localStorage.getItem("spotifyAccessToken");
         if (!token || !playlistId) {
             console.error("No Spotify token or playlist ID available.");
@@ -58,12 +59,15 @@ const Navigator = () => {
             if (response.ok) {
                 const data = await response.json();
                 setSongs((prevSongs) => {
+                    let idx = 0;
                     const updatedSongs = {
                         ...prevSongs,
                         [playlistId]: data.items.map((item) => ({
                             name: item.track.name,
                             artist: item.track.artists.map(artist => artist.name).join(", "),
-                            duration: item.track.duration_ms / 1000 // Save duration in seconds
+                            duration: item.track.duration_ms / 1000,
+                            uri: item.track.uri,
+                            index: idx++
                         }))
                     };
                     return updatedSongs;
@@ -158,6 +162,52 @@ const Navigator = () => {
         song.name.toLowerCase().includes(filterText.toLowerCase()) || song.artist.toLowerCase().includes(filterText.toLowerCase())
     );
 
+    const handleDragStart = (e, song, playlist_id) => {
+        e.dataTransfer.setData("song", JSON.stringify(song));
+        e.dataTransfer.setData("playlist", playlist_id);
+        console.log(playlist_id);
+    };
+
+    const handleDrop = (e, playlistId) => {
+        const song = JSON.parse(e.dataTransfer.getData("song"));
+        const orig_playlist = e.dataTransfer.getData("playlist");
+        const targetSongIndex = e.target.closest(".song-detail-item")?.dataset.index; // Get the index of the target item
+        console.dir(orig_playlist);
+
+        setSongs((prevSongs) => {
+            const updatedSongs = { ...prevSongs };
+            if (!updatedSongs[playlistId]) {
+                updatedSongs[playlistId] = [];
+            }
+
+            // Avoid duplicates
+            const exists = updatedSongs[playlistId].some((s) => s.name === song.name && s.artist === song.artist);
+            if (!exists) {
+                const index = targetSongIndex !== undefined ? parseInt(targetSongIndex, 10) : updatedSongs[playlistId].length;
+                updatedSongs[playlistId].splice(index, 0, song); // Insert at the correct position
+                for (let i = index; i < updatedSongs[playlistId].length; i++) {
+                    updatedSongs[playlistId][i].index = i;
+                }
+            }
+            updatedSongs[orig_playlist] = updatedSongs[orig_playlist].filter((s) => s.name !== song.name || s.artist !== song.artist);
+
+            return updatedSongs;
+        });
+    };
+
+    const handleDelete = (playlistId, song) => {
+        setSongs((prevSongs) => {
+            const updatedSongs = { ...prevSongs };
+            updatedSongs[playlistId] = updatedSongs[playlistId].filter(
+                (s) => s.name !== song.name || s.artist !== song.artist
+            );
+            for (let i = 0; i < updatedSongs[playlistId].length; i++) {
+                updatedSongs[playlistId][i].index = i;
+            }
+            return updatedSongs;
+        });
+    };
+
     return (
         <div className="navigator-container">
             {/* Left Panel */}
@@ -233,17 +283,27 @@ const Navigator = () => {
                     <div
                         key={playlist.id}
                         className={`playlist-details ${songs[playlist.id]?.some(song => selectedSong?.name === song.name && selectedSong?.artist === song.artist) ? 'selected' : ''}`}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, playlist.id)}
                     >
                         <h3>{playlist.name}</h3>
                         <ul className="song-details">
                             {songs[playlist.id]?.map((song, index) => (
-                                <li key={index} className={`song-detail-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''} ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? 'selected' : ''}`}
-                                ref={(el) => (songRefs.current[song.name] = el)}>
-                                    <div className="song-index">{index+1}</div>
+                                <li key={index}
+                                    className={`song-detail-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''} ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? 'selected' : ''}`}
+                                    ref={(el) => (songRefs.current[song.name] = el)}
+                                    draggable="true"
+                                    data-index={index}
+                                    onDragStart={(e) => handleDragStart(e, song, playlist.id)}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => handleDrop(e, playlist.id)}
+                                >
+                                    <div className="song-index">{song.index+1}</div>
                                     <div className="song-name">{song.name}</div>
                                     <div className="song-artist">{song.artist}</div>
                                     <div className="song-duration">{Math.floor(song.duration / 60)}:{Math.floor(song.duration % 60).toString().padStart(2, '0')}</div>
-                                    <div className="delete-icon">🗑️</div>
+                                    <div className="delete-icon"
+                                    onClick={() => handleDelete(playlist.id, song)}>🗑️</div>
                                 </li>
                             ))}
                         </ul>
