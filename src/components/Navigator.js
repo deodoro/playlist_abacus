@@ -3,6 +3,7 @@ import './Navigator.css';
 
 const Navigator = () => {
     const [selectedPlaylists, setSelectedPlaylists] = useState([]);
+    const [selectedSong, setSelectedSong] = useState(null);
     const [filterText, setFilterText] = useState("");
     const [playlists, setPlaylists] = useState([]);
     const [songs, setSongs] = useState({});
@@ -18,19 +19,19 @@ const Navigator = () => {
         try {
             const response = await fetch("https://api.spotify.com/v1/me/playlists", {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-            if (response.ok) {
-                const data = await response.json();
-                setPlaylists(data.items.map((playlist) => ({
-                    id: playlist.id,
-                    name: playlist.name
-                })));
-            } else {
-                console.error("Failed to fetch playlists", response.status);
-            }
+                if (response.ok) {
+                    const data = await response.json();
+                    setPlaylists(data.items.map((playlist) => ({
+                        id: playlist.id,
+                        name: playlist.name
+                    })));
+                } else {
+                    console.error("Failed to fetch playlists", response.status);
+                }
         } catch (error) {
             console.error("Error fetching playlists", error);
         }
@@ -60,10 +61,11 @@ const Navigator = () => {
                         ...prevSongs,
                         [playlistId]: data.items.map((item) => ({
                             name: item.track.name,
-                            artist: item.track.artists.map(artist => artist.name).join(", ")
+                            artist: item.track.artists.map(artist => artist.name).join(", "),
+                            duration: item.track.duration_ms / 3600000
                         }))
                     };
-                    return updatedSongs;
+                                        return updatedSongs;
                 });
             } else {
                 console.error("Failed to fetch songs", response.status);
@@ -80,6 +82,9 @@ const Navigator = () => {
     useEffect(() => {
         if (selectedPlaylists.length > 0) {
             findRepeats(songs);
+        }
+        else {
+            setRepeats([]);
         }
     }, [selectedPlaylists, songs]);
 
@@ -115,6 +120,27 @@ const Navigator = () => {
         }
     };
 
+    const selectSong = (song) => {
+        setSelectedSong(song);
+    };
+
+    const deduplicate = (array) => {
+        const sortedSongs = array.sort((a, b) => {
+            const nameComparison = a.name.localeCompare(b.name);
+            if (nameComparison !== 0) {
+                return nameComparison;
+            }
+            return a.artist.localeCompare(b.artist);
+        });
+        return sortedSongs.filter((song, index) => index === 0 || sortedSongs[index - 1].name !== song.name && sortedSongs[index - 1].artist !== song.artist);
+    };
+
+    const allSongsFromSelectedPlaylists = deduplicate(
+        selectedPlaylists
+            .map((playlist) => songs[playlist.id] || [])
+            .flat()
+    );
+
     return (
         <div className="navigator-container">
             {/* Left Panel */}
@@ -129,10 +155,10 @@ const Navigator = () => {
                 />
 
                 {/* Playlist Section */}
-                <div>
+                <div className="playlists">
                     <h3>Playlists</h3>
                     <ul className="playlist-list">
-                        {filteredPlaylists.map((playlist, index) => (
+                        {filteredPlaylists.sort((a,b) => a.name.localeCompare(b.name)).map((playlist, index) => (
                             <li
                                 key={index}
                                 onClick={() => togglePlaylistSelection(playlist)}
@@ -143,16 +169,40 @@ const Navigator = () => {
                         ))}
                     </ul>
                 </div>
+
+                {/* Songs from Selected Playlists Section */}
+                <div className="songs">
+                    <h3>Songs</h3>
+                    <ul className="song-list">
+                        {allSongsFromSelectedPlaylists.map((song, index) => (
+                            <li
+                                key={index}
+                                className={`song-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''} ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? 'selected' : ''}`}
+                                onClick={() => selectSong(song)}
+                            >
+                                <div className="song-name">{song.name}</div>
+                                <div className="song-artist">{song.artist}</div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
 
             {/* Right Panel */}
             <div className="right-panel">
                 {selectedPlaylists.map((playlist) => (
-                    <div key={playlist.id} className="playlist-details">
-                        <h3>{playlist.name}</h3>
+                    <div
+                        key={playlist.id}
+                        className={`playlist-details ${songs[playlist.id]?.some(song => selectedSong?.name === song.name && selectedSong?.artist === song.artist) ? 'selected' : ''}`}
+                    >
+                        <h3>{playlist.name}
+                            <span className="info count">{songs[playlist.id]?.length} songs</span>
+                            <span className="info length">{Math.round(songs[playlist.id]?.map(i => i.duration).reduce((acc, d) => acc + d, 0)*100)/100} hours</span>
+                        </h3>
                         <ul className="song-details">
                             {songs[playlist.id]?.map((song, index) => (
                                 <li key={index} className={`song-detail-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''}`}>
+                                    <div className="song-index">{index+1}</div>
                                     <div className="song-name">{song.name}</div>
                                     <div className="song-artist">{song.artist}</div>
                                 </li>
