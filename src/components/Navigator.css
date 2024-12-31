@@ -19,21 +19,37 @@ flex-direction: column;
 overflow: hidden;
 }
 
-/* Filter Box */
+.filter-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .filter-box {
     width: 100%;
     padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    background-color: #f9f9f9;
-    z-index: 1;
+    box-sizing: border-box;
 }
 
+.clear-filter {
+    position: absolute;
+    right: 10px; /* Adjust spacing as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em; /* Adjust size as needed */
+    color: #666; /* Adjust color as needed */
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.clear-filter:hover {
+    opacity: 1;
+}
 
 div.playlists, div.songs {
     display: flex;
@@ -45,6 +61,11 @@ div.playlists, div.songs {
 div.playlists h3, div.songs h3{
     margin-bottom: 0.5em;
 }
+
+.deselect-all {
+    margin-left: 1em;
+}
+
 .playlist-list,.song-list {
     flex: 1;
     overflow-y: auto;
@@ -74,9 +95,13 @@ div.playlists h3, div.songs h3{
     background-color: #f0f0f0;
 }
 
-.playlist-item.selected,
-.song-item.selected {
+.playlist-item.selected {
     background-color: #ddd;
+    font-weight: bold;
+}
+
+.song-item.selected {
+    background-color: rgb(255, 246, 213);
     font-weight: bold;
 }
 
@@ -165,4 +190,37 @@ div.playlists h3, div.songs h3{
     font-size: 0.6em;
     display: inline;
     margin-left: 0.5em;
+    padding: 0 0.4em;
+    background: rgb(188, 211, 255)
+}
+
+.song-duration {
+    font-size: 0.6em;
+    display: inline;
+    margin-left: 0.5em;
+    padding: 0 0.4em;
+    background: rgb(201, 201, 201)
+}
+
+.song-detail-item {
+    position: relative;
+    padding-right: 40px; /* Ensure space for the icon */
+}
+
+.song-detail-item.selected {
+    font-weight: bold;
+}
+
+.delete-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+}
+
+.song-detail-item:hover .delete-icon {
+    opacity: 1; /* Visible on hover */
 }

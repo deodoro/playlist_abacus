@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './Navigator.css';
 
 const Navigator = () => {
@@ -8,6 +8,7 @@ const Navigator = () => {
     const [playlists, setPlaylists] = useState([]);
     const [songs, setSongs] = useState({});
     const [repeats, setRepeats] = useState([]);
+    const songRefs = useRef({});
 
     const fetchPlaylists = async () => {
         const token = localStorage.getItem("spotifyAccessToken");
@@ -62,10 +63,10 @@ const Navigator = () => {
                         [playlistId]: data.items.map((item) => ({
                             name: item.track.name,
                             artist: item.track.artists.map(artist => artist.name).join(", "),
-                            duration: item.track.duration_ms / 3600000
+                            duration: item.track.duration_ms / 1000 // Save duration in seconds
                         }))
                     };
-                                        return updatedSongs;
+                    return updatedSongs;
                 });
             } else {
                 console.error("Failed to fetch songs", response.status);
@@ -94,20 +95,22 @@ const Navigator = () => {
 
     const findRepeats = (updatedSongs) => {
         let repeatsList = [];
-        let flag = true;
-        selectedPlaylists.forEach(playlist => {
-            let selectedSongs = updatedSongs[playlist.id] || songs[playlist.id];
-            if (selectedSongs) {
-                if (flag) {
-                    repeatsList = [...selectedSongs];
-                    flag = false;
-                } else {
-                    repeatsList = repeatsList.filter(song =>
-                        selectedSongs.some(s => s.name === song.name && s.artist === song.artist)
-                    );
+        if (selectedPlaylists.length > 1) {
+            let flag = true;
+            selectedPlaylists.forEach(playlist => {
+                let selectedSongs = updatedSongs[playlist.id] || songs[playlist.id];
+                if (selectedSongs) {
+                    if (flag) {
+                        repeatsList = [...selectedSongs];
+                        flag = false;
+                    } else {
+                        repeatsList = repeatsList.filter(song =>
+                            selectedSongs.some(s => s.name === song.name && s.artist === song.artist)
+                        );
+                    }
                 }
-            }
-        });
+            });
+        }
         setRepeats(repeatsList);
     };
 
@@ -120,9 +123,19 @@ const Navigator = () => {
         }
     };
 
+    const deselectAllPlaylists = () => {
+        setSelectedPlaylists([]);
+    };
+
     const selectSong = (song) => {
         setSelectedSong(song);
-    };
+        if (songRefs.current[song.name]) {
+            songRefs.current[song.name].scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+        }
+    }
 
     const deduplicate = (array) => {
         const sortedSongs = array.sort((a, b) => {
@@ -141,22 +154,46 @@ const Navigator = () => {
             .flat()
     );
 
+    const filteredSongs = allSongsFromSelectedPlaylists.filter((song) =>
+        song.name.toLowerCase().includes(filterText.toLowerCase()) || song.artist.toLowerCase().includes(filterText.toLowerCase())
+    );
+
     return (
         <div className="navigator-container">
             {/* Left Panel */}
             <div className="left-panel">
                 {/* Filter Box */}
-                <input
-                    type="text"
-                    placeholder="Filter..."
-                    value={filterText}
-                    onChange={(e) => setFilterText(e.target.value)}
-                    className="filter-box"
-                />
+                <div className="filter-container">
+                    <input
+                        type="text"
+                        placeholder="Filter..."
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                        className="filter-box"
+                    />
+                    {filterText && (
+                        <button
+                            className="clear-filter"
+                            onClick={() => setFilterText("")}
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
 
                 {/* Playlist Section */}
                 <div className="playlists">
-                    <h3>Playlists</h3>
+                    <div className="playlists-header">
+                        <h3><span>Playlists</span>
+                        <button
+                            className="deselect-all"
+                            onClick={deselectAllPlaylists}
+                            disabled={selectedPlaylists.length > 0 ? false : true}
+                        >
+                            Deselect All
+                        </button>
+                        </h3>
+                    </div>
                     <ul className="playlist-list">
                         {filteredPlaylists.sort((a,b) => a.name.localeCompare(b.name)).map((playlist, index) => (
                             <li
@@ -174,7 +211,7 @@ const Navigator = () => {
                 <div className="songs">
                     <h3>Songs</h3>
                     <ul className="song-list">
-                        {allSongsFromSelectedPlaylists.map((song, index) => (
+                        {filteredSongs.map((song, index) => (
                             <li
                                 key={index}
                                 className={`song-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''} ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? 'selected' : ''}`}
@@ -182,6 +219,8 @@ const Navigator = () => {
                             >
                                 <div className="song-name">{song.name}</div>
                                 <div className="song-artist">{song.artist}</div>
+                                <div className="song-duration">{Math.floor(song.duration / 60)}:{Math.floor(song.duration % 60).toString().padStart(2, '0')}</div>
+                                <div className="delete-icon">🗑️</div>
                             </li>
                         ))}
                     </ul>
@@ -195,16 +234,16 @@ const Navigator = () => {
                         key={playlist.id}
                         className={`playlist-details ${songs[playlist.id]?.some(song => selectedSong?.name === song.name && selectedSong?.artist === song.artist) ? 'selected' : ''}`}
                     >
-                        <h3>{playlist.name}
-                            <span className="info count">{songs[playlist.id]?.length} songs</span>
-                            <span className="info length">{Math.round(songs[playlist.id]?.map(i => i.duration).reduce((acc, d) => acc + d, 0)*100)/100} hours</span>
-                        </h3>
+                        <h3>{playlist.name}</h3>
                         <ul className="song-details">
                             {songs[playlist.id]?.map((song, index) => (
-                                <li key={index} className={`song-detail-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''}`}>
+                                <li key={index} className={`song-detail-item ${repeats.some(r => r.name === song.name && r.artist === song.artist) ? 'repeat' : ''} ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? 'selected' : ''}`}
+                                ref={(el) => (songRefs.current[song.name] = el)}>
                                     <div className="song-index">{index+1}</div>
                                     <div className="song-name">{song.name}</div>
                                     <div className="song-artist">{song.artist}</div>
+                                    <div className="song-duration">{Math.floor(song.duration / 60)}:{Math.floor(song.duration % 60).toString().padStart(2, '0')}</div>
+                                    <div className="delete-icon">🗑️</div>
                                 </li>
                             ))}
                         </ul>
