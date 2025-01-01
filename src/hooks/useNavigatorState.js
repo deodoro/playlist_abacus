@@ -17,6 +17,7 @@ const useNavigatorState = () => {
         }, []);
 
   const fetchPlaylistSongs = (playlistId) => {
+      console.log("FETCHING SONGS");
       fetchSongs(playlistId).then((data) => {
         let idx = 0;
         const items = data.items.map((item) => ({

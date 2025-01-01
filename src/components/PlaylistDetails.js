@@ -18,33 +18,47 @@ const PlaylistDetails = ({
     e.dataTransfer.setData("playlist", playlist.id);
   };
   const handleDrop = (e) => {
+    let firstRun = true;
     const song = JSON.parse(e.dataTransfer.getData("song"));
     const origPlaylistId = e.dataTransfer.getData("playlist");
     const targetSongIndex =
       e.target.closest(".song-detail-item")?.dataset.index; // Get the index of the target item
 
+    console.log("HERE");
     setSongs((prevSongs) => {
       const updatedSongs = {
         ...prevSongs,
       };
-      const exists = updatedSongs[playlist.id].some(
-        (s) => s.name === song.name && s.artist === song.artist
-      );
-      if (!exists) {
-        const index =
-          targetSongIndex !== undefined
-            ? parseInt(targetSongIndex, 10)
-            : updatedSongs[playlist.id].length;
-        updatedSongs[playlist.id].splice(index, 0, song); // Insert at the correct position
-        console.log("index", index);
-        for (let i = index; i < updatedSongs[playlist.id].length; i++) {
-          updatedSongs[playlist.id][i].index = i;
+      if (firstRun) {
+        firstRun = false;
+        if (playlist.id != origPlaylistId) {
+            const targetIndex = targetSongIndex !== undefined
+                ? parseInt(targetSongIndex, 10)
+                : updatedSongs[playlist.id].length;
+            const sourceIndex = song.index;
+            console.log("THEN");
+            updatedSongs[playlist.id].splice(targetIndex, 0, song); // Insert at the correct position
+            for (let i = targetIndex; i < updatedSongs[playlist.id].length; i++) {
+              updatedSongs[playlist.id][i].index = i;
+            }
+            updatedSongs[origPlaylistId].splice(sourceIndex, 1);
+            for (let i = sourceIndex; i < updatedSongs[origPlaylistId].length; i++) {
+                updatedSongs[origPlaylistId][i].index = i;
+            }
+          } else {
+            const targetIndex =
+              targetSongIndex !== undefined
+                ? parseInt(targetSongIndex, 10)
+                : updatedSongs[playlist.id].length - 1;
+            const newIndex = targetIndex < song.index ? targetIndex : targetIndex + 1;
+            const sourceIndex = song.index;
+            updatedSongs[playlist.id].splice(sourceIndex, 1); // Remove the item from the source
+            updatedSongs[playlist.id].splice(newIndex-1, 0, song); // Insert at the correct position
+            for (let i = Math.max(0,Math.min(sourceIndex, targetIndex)-1); i < updatedSongs[playlist.id].length; i++) {
+                updatedSongs[playlist.id][i].index = i;
+            }
         }
-      }
-
-      updatedSongs[origPlaylistId] = updatedSongs[origPlaylistId].filter(
-        (s) => s.name !== song.name || s.artist !== song.artist
-      );
+    }
 
       return updatedSongs;
     });
@@ -160,7 +174,7 @@ const PlaylistDetails = ({
             onClick={() => setSelectedSong(song)}
             data-index={index}
           >
-            <div className="song-index"> {index + 1} </div>
+            <div className="song-index"> {song.index + 1} </div>
             <div className="song-name"> {song.name} </div>
             <div className="song-artist"> {song.artist} </div>
             <div className="song-duration">
