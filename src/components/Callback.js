@@ -10,10 +10,6 @@ const Callback = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    console.log("code", code);
-    console.log("redirect_uri", process.env.REACT_APP_SPOTIFY_REDIRECT_URI);
-    console.log("client_id", process.env.REACT_APP_SPOTIFY_CLIENT_ID);
-
     if (code) {
       // Exchange code for access token
       let token = btoa(`${process.env.REACT_APP_SPOTIFY_CLIENT_ID}:${process.env.REACT_APP_SPOTIFY_CLIENT_SECRET}`);

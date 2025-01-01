@@ -40,7 +40,6 @@ const Navigator = () => {
             setSelectedPlaylists(selectedPlaylists.filter((p) => p.id !== playlist.id));
         } else {
             setSelectedPlaylists([...selectedPlaylists, playlist]);
-            console.log("TO FETCH SONGS");
             if (!(playlist.id in songs))
                 fetchPlaylistSongs(playlist.id);
         }

@@ -264,6 +264,7 @@ div.songs h3 .info {
     opacity: 0; /* Hidden by default */
     transition: opacity 0.2s ease;
     cursor: pointer;
+    color: #ff8787;
 }
 
 .song-detail-item:hover .delete-icon {

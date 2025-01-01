@@ -43,7 +43,6 @@ const PlaylistDetails = ({
         ...prevSongs,
       };
       if (firstRun) {
-        console.log("orig", origPlaylistId);
         firstRun = false;
         if (origPlaylistId === "master" || playlist.id != origPlaylistId) {
             const targetIndex = targetSongIndex !== undefined
@@ -128,10 +127,8 @@ const PlaylistDetails = ({
   const handleDeleteList = async() => {
     const confirmDelete = window.confirm("Are you sure you want to delete this playlist?");
     if (!confirmDelete) return;
-    console.log("NEXT")
     try {
-        const result = await deleteList(playlist.id);
-        console.log(result);
+        await deleteList(playlist.id);
         setSongs((prevSongs) => {
             delete prevSongs[playlist.id];
             return prevSongs;
@@ -209,7 +206,7 @@ const PlaylistDetails = ({
               {Math.floor(song.duration / 60)}:
               {String(Math.floor(song.duration % 60)).padStart(2, "0")}
             </div>
-            <div className="delete-icon" onClick={() => handleDelete(playlist.id, song)}>🗑️</div>
+            <div className="delete-icon" onClick={() => handleDelete(playlist.id, song)}>⊗</div>
         </li>
         ))}
       </ul>

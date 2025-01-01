@@ -14,7 +14,7 @@ const PlaylistActions = ({
 }) => {
   const handleAction = (actionType) => {
     if (!actionPlaylistName) return;
-    console.log(playlists);
+
     const newPlaylist = {
       id: `${Date.now()}`,
       name: actionPlaylistName,
