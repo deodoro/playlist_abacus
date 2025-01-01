@@ -123,7 +123,7 @@ div.playlists h3, div.songs h3{
     width: 33%;
     height: 50%;
     background-color: white;
-    border: 1px solid #000;
+    border: none;
     padding: 10px;
     box-sizing: border-box;
     margin: 10px;
@@ -137,7 +137,8 @@ div.playlists h3, div.songs h3{
 }
 
 .playlist-details.merge {
-    height: 15%;
+    height: 33%;
+    background-color: rgb(254, 254, 243);
 }
 
 .playlist-details.disabled {
