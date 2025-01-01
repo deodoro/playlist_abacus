@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { createPlaylist, addSongsToPlaylist, deleteList } from "../utils/api";
 
 const PlaylistDetails = ({
   playlist,
+  setPlaylists,
   songs,
   repeats,
   selectedSong,
@@ -10,6 +12,7 @@ const PlaylistDetails = ({
   setSongs,
   songRefs,
 }) => {
+  const [length, setLength] = useState(0);
   const handleDragStart = (e, song) => {
     e.dataTransfer.setData("song", JSON.stringify(song));
     e.dataTransfer.setData("playlist", playlist.id);
@@ -17,25 +20,96 @@ const PlaylistDetails = ({
   const handleDrop = (e) => {
     const song = JSON.parse(e.dataTransfer.getData("song"));
     const origPlaylistId = e.dataTransfer.getData("playlist");
-    const targetSongIndex = e.target.closest(".song-detail-item")?.dataset.index; // Get the index of the target item
+    const targetSongIndex =
+      e.target.closest(".song-detail-item")?.dataset.index; // Get the index of the target item
 
     setSongs((prevSongs) => {
-      const updatedSongs = { ...prevSongs };
-        const exists = updatedSongs[playlist.id].some((s) => s.name === song.name && s.artist === song.artist);
-        if (!exists) {
-            const index = targetSongIndex !== undefined ? parseInt(targetSongIndex, 10) : updatedSongs[playlist.id].length;
-            updatedSongs[playlist.id].splice(index, 0, song); // Insert at the correct position
-            console.log("index", index);
-            for (let i = index; i < updatedSongs[playlist.id].length; i++) {
-                updatedSongs[playlist.id][i].index = i;
-            }
+      const updatedSongs = {
+        ...prevSongs,
+      };
+      const exists = updatedSongs[playlist.id].some(
+        (s) => s.name === song.name && s.artist === song.artist
+      );
+      if (!exists) {
+        const index =
+          targetSongIndex !== undefined
+            ? parseInt(targetSongIndex, 10)
+            : updatedSongs[playlist.id].length;
+        updatedSongs[playlist.id].splice(index, 0, song); // Insert at the correct position
+        console.log("index", index);
+        for (let i = index; i < updatedSongs[playlist.id].length; i++) {
+          updatedSongs[playlist.id][i].index = i;
         }
+      }
 
-        updatedSongs[origPlaylistId] = updatedSongs[origPlaylistId].filter((s) => s.name !== song.name || s.artist !== song.artist);
+      updatedSongs[origPlaylistId] = updatedSongs[origPlaylistId].filter(
+        (s) => s.name !== song.name || s.artist !== song.artist
+      );
 
       return updatedSongs;
     });
   };
+
+  const cloneList = async () => {
+    const newPlaylistName = prompt("Enter the new playlist name:");
+    if (!newPlaylistName) return;
+
+    const confirmClone = window.confirm(
+      "Are you sure you want to clone this playlist?"
+    );
+    if (!confirmClone) return;
+
+    try {
+      // Create a new playlist
+      const newPlaylist = await createPlaylist(newPlaylistName);
+      console.log(`New playlist created with ID: ${newPlaylist.id}`);
+      setPlaylists((prevPlaylists) => [...prevPlaylists, newPlaylist]);
+
+      // Extract song URIs
+      const songUris = songs.map((song) => song.uri);
+
+      // Add songs to the new playlist
+      if (songUris.length > 0) {
+        await addSongsToPlaylist(newPlaylist.id, songUris);
+        console.log("Songs added to the cloned playlist.");
+      } else {
+        console.log("No songs to add.");
+      }
+
+      alert("Playlist cloned successfully!");
+    } catch (error) {
+      console.error("Error cloning playlist:", error.message);
+      alert("An error occurred while cloning the playlist.");
+    }
+  };
+
+  const handleDeleteList = async() => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this playlist?");
+    if (!confirmDelete) return;
+    console.log("NEXT")
+    try {
+        const result = await deleteList(playlist.id);
+        console.log(result);
+        setSongs((prevSongs) => {
+            delete prevSongs[playlist.id];
+            return prevSongs;
+        })
+        setPlaylists((prevPlaylists) => {
+            return prevPlaylists.filter(p => p.id !== playlist.id);
+        });
+        alert("Playlist deleted successfully!");
+    } catch (error) {
+        console.error("Error deleting playlist:", error.message);
+        alert("An error occurred while deleting the playlist.");
+    }
+  }
+
+  useEffect(() => {
+    if (songs)
+        setLength(Math.round(songs.map(i => i.duration).reduce((acc, d) => acc + d, 0)/36)/100);
+    else
+        setLength(0);
+  }, [songs]);
 
   return (
     <div
@@ -45,32 +119,54 @@ const PlaylistDetails = ({
     >
       <h3>
         {playlist.name}
-        <span className="info count">{songs?.length || 0} songs</span>
+        <span className="info count">
+          {songs?.length || 0} songs
+        </span>
+        <span className="info duration">
+          {length} hours
+        </span>
+        <a href="#" className="clone-button" onClick={cloneList}>
+          clone
+        </a>
+        <a href="#" className="delete-button" onClick={handleDeleteList}>
+          delete
+        </a>
       </h3>
       <ul className="song-details">
+
         {songs?.map((song, index) => (
           <li
             key={index}
             className={`song-detail-item ${
-              repeats.some((r) => r.name === song.name && r.artist === song.artist) ? "repeat" : ""
-            } ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? "selected" : ""}`}
+              repeats.some(
+                (r) => r.name === song.name && r.artist === song.artist
+              )
+                ? "repeat"
+                : ""
+            } ${
+              selectedSong?.name === song.name &&
+              selectedSong?.artist === song.artist
+                ? "selected"
+                : ""
+            }`}
             draggable
-            ref = {
-                (el) => {
-                    if (!songRefs.current[song.uri]) {
-                        songRefs.current[song.uri] = [];
-                    }
-                    songRefs.current[song.uri].push(el);
-                }
-            }
+            ref={(el) => {
+              if (!songRefs.current[song.uri]) {
+                songRefs.current[song.uri] = [];
+              }
+              songRefs.current[song.uri].push(el);
+            }}
             onDragStart={(e) => handleDragStart(e, song)}
             onClick={() => setSelectedSong(song)}
             data-index={index}
           >
-            <div className="song-index">{index + 1}</div>
-            <div className="song-name">{song.name}</div>
-            <div className="song-artist">{song.artist}</div>
-            <div className="song-duration">{Math.floor(song.duration / 60)}:{String(song.duration % 60).padStart(2, "0")}</div>
+            <div className="song-index"> {index + 1} </div>
+            <div className="song-name"> {song.name} </div>
+            <div className="song-artist"> {song.artist} </div>
+            <div className="song-duration">
+              {Math.floor(song.duration / 60)}:
+              {String(Math.floor(song.duration % 60)).padStart(2, "0")}
+            </div>
           </li>
         ))}
       </ul>
@@ -79,13 +175,14 @@ const PlaylistDetails = ({
 };
 
 PlaylistDetails.propTypes = {
-    playlist: PropTypes.object.isRequired,
-    songs: PropTypes.array.isRequired,
-    repeats: PropTypes.array.isRequired,
-    selectedSong: PropTypes.object,
-    setSelectedSong: PropTypes.func.isRequired,
-    setSongs: PropTypes.func.isRequired,
-    songRefs: PropTypes.object.isRequired,
+  playlist: PropTypes.object.isRequired,
+  setPlaylists: PropTypes.func.isRequired,
+  songs: PropTypes.array.isRequired,
+  repeats: PropTypes.array.isRequired,
+  selectedSong: PropTypes.object,
+  setSelectedSong: PropTypes.func.isRequired,
+  setSongs: PropTypes.func.isRequired,
+  songRefs: PropTypes.object.isRequired,
 };
 
 export default PlaylistDetails;

@@ -8,8 +8,7 @@ const useNavigatorState = () => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("spotifyAccessToken");
-    if (token) fetchPlaylists(token).then((data) =>
+    fetchPlaylists().then((data) =>
             setPlaylists(data.items.map((playlist) => ({
                 id: playlist.id,
                 name: playlist.name
@@ -18,9 +17,7 @@ const useNavigatorState = () => {
         }, []);
 
   const fetchPlaylistSongs = (playlistId) => {
-    const token = localStorage.getItem("spotifyAccessToken");
-    if (token)
-      fetchSongs(token, playlistId).then((data) => {
+      fetchSongs(playlistId).then((data) => {
         let idx = 0;
         const items = data.items.map((item) => ({
             name: item.track.name,

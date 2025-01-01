@@ -79,7 +79,7 @@ const Navigator = () => {
 
             <div className="right-panel">
                 {selectedPlaylists.map((playlist) => (
-                    <PlaylistDetails key={playlist.id} playlist={playlist} songs={songs[playlist.id]} repeats={repeats} selectedSong={selectedSong} setSelectedSong={setSelectedSong} setSongs={setSongs} songRefs={songRefs} />
+                    <PlaylistDetails key={playlist.id} playlist={playlist} setPlaylists={setPlaylists} songs={songs[playlist.id]} repeats={repeats} selectedSong={selectedSong} setSelectedSong={setSelectedSong} setSongs={setSongs} songRefs={songRefs} />
                 ))}
                 <PlaylistActions selectedPlaylists={selectedPlaylists} playlists={playlists} setPlaylists={setPlaylists} songs={songs} setSongs={setSongs} actionPlaylistName={newPlaylistName} setActionPlaylistName={setNewPlaylistName} setSelectedPlaylists={setSelectedPlaylists} />
             </div>

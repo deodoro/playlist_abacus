@@ -160,6 +160,17 @@ div.playlists h3, div.songs h3{
     white-space: nowrap;
 }
 
+.playlist-details h3 a, .playlist-details h3 a:visited{
+    font-size: 0.5em;
+    margin-left: 1em;
+    font-weight: 300;
+    white-space: nowrap;
+    color: rgb(217, 180, 254);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 .song-details {
     list-style-type: none;
     padding: 0;
