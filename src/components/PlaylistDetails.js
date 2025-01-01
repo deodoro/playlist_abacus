@@ -55,7 +55,14 @@ const PlaylistDetails = ({
               repeats.some((r) => r.name === song.name && r.artist === song.artist) ? "repeat" : ""
             } ${selectedSong?.name === song.name && selectedSong?.artist === song.artist ? "selected" : ""}`}
             draggable
-            ref={(el) => (songRefs.current[song.name] = el)}
+            ref = {
+                (el) => {
+                    if (!songRefs.current[song.uri]) {
+                        songRefs.current[song.uri] = [];
+                    }
+                    songRefs.current[song.uri].push(el);
+                }
+            }
             onDragStart={(e) => handleDragStart(e, song)}
             onClick={() => setSelectedSong(song)}
             data-index={index}

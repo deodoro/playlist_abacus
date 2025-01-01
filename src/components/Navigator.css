@@ -137,8 +137,7 @@ div.playlists h3, div.songs h3{
 }
 
 .playlist-details.merge {
-    height: 33%;
-    background-color: rgb(254, 254, 243);
+    background-color: #e0e0e0;
 }
 
 .playlist-details.disabled {

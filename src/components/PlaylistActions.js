@@ -60,7 +60,7 @@ const PlaylistActions = ({
   };
 
   return (
-    <div className="playlist-actions">
+    <div className="playlist-actions playlist-details merge">
       <h3>Actions</h3>
       <div>
         <input
