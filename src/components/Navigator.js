@@ -9,6 +9,7 @@ const Navigator = () => {
     const [songs, setSongs] = useState({});
     const [repeats, setRepeats] = useState([]);
     const songRefs = useRef({});
+    const [newPlaylistName, setNewPlaylistName] = useState("");
 
     const fetchPlaylists = async () => {
         const token = localStorage.getItem("spotifyAccessToken");
@@ -39,7 +40,6 @@ const Navigator = () => {
     };
 
     const fetchSongs = async (playlistId) => {
-        console.log("fetch")
         const token = localStorage.getItem("spotifyAccessToken");
         if (!token || !playlistId) {
             console.error("No Spotify token or playlist ID available.");
@@ -165,7 +165,6 @@ const Navigator = () => {
     const handleDragStart = (e, song, playlist_id) => {
         e.dataTransfer.setData("song", JSON.stringify(song));
         e.dataTransfer.setData("playlist", playlist_id);
-        console.log(playlist_id);
     };
 
     const handleDrop = (e, playlistId) => {
@@ -207,6 +206,33 @@ const Navigator = () => {
             return updatedSongs;
         });
     };
+
+    const mergePlaylists = () => {
+        console.log("Merging playlists...", newPlaylistName);
+        const newPlaylist = {
+            id: 'new',
+            name: newPlaylistName,
+        }
+
+        setPlaylists([...playlists, newPlaylist]);
+        selectedPlaylists.push(newPlaylist);
+        setSongs((prevSongs) => {
+            const mergedSongs = deduplicate(selectedPlaylists.map((playlist) => songs[playlist.id] || []).flat());
+            let idx = 0;
+            const updatedSongs = {
+                ...prevSongs,
+                [newPlaylist.id]: mergedSongs.map((item) => ({
+                    name: item.name,
+                    artist: item.artist,
+                    duration: item.duration,
+                    uri: item.uri,
+                    index: idx++
+                }))
+            };
+            return updatedSongs;
+        }
+    );
+}
 
     return (
         <div className="navigator-container">
@@ -309,6 +335,53 @@ const Navigator = () => {
                         </ul>
                     </div>
                 ))}
+                <div
+                    key="merge"
+                    className={`playlist-details merge ${selectedPlaylists.length > 1 ? "" : "disabled"}`}
+                    disabled={selectedPlaylists.length > 1 ? false : true}
+                >
+                    <h3>Merge Playlists</h3>
+                    <div>
+                        Creates a new playlist with the union of songs from the selected playlists:
+                        <input type="text" placeholder="New Playlist Name" value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value) }/>
+                        <button
+                            className="merge-button"
+                            disabled={newPlaylistName !== "" ? false : true}
+                            onClick={mergePlaylists}
+                        >Merge
+                        </button>
+                    </div>
+                </div>
+                <div
+                    key="intersection"
+                    className={`playlist-details merge ${selectedPlaylists.length > 1 ? "" : "disabled"}`}
+                >
+                    <h3>Intersection</h3>
+                    <div>
+                        Creates a new playlist with the songs that appear in all selected playlists:
+                        <input type="text" placeholder="New Playlist Name" value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value) }/>
+                        <button
+                            className="merge-button"
+                            disabled={newPlaylistName ? false : true}
+                        >Create
+                        </button>
+                    </div>
+                </div>
+                <div
+                    key="diff"
+                    className={`playlist-details merge ${selectedPlaylists.length > 1 ? "" : "disabled"}`}
+                >
+                    <h3>Diff</h3>
+                    <div>
+                        Creates a new playlist with the songs that appear only in the leftmost selected playlist(s):
+                        <input type="text" placeholder="New Playlist Name" value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value) }/>
+                        <button
+                            className="merge-button"
+                            disabled={newPlaylistName ? false : true}
+                        >Diff
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

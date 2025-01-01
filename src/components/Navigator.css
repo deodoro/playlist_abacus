@@ -114,6 +114,7 @@ div.playlists h3, div.songs h3{
     display: flex;
     flex-wrap: wrap;
     overflow-y: auto;
+    flex-direction: row;
 }
 
 
@@ -128,10 +129,20 @@ div.playlists h3, div.songs h3{
     margin: 10px;
     border-radius: 4px;
     overflow-y: auto;
+    flex: 0 0 30;
 }
 
 .playlist-details.selected {
     background-color: rgb(255, 246, 213);
+}
+
+.playlist-details.merge {
+    height: 15%;
+}
+
+.playlist-details.disabled {
+    background-color: #a6a6a6;
+    pointer-events: none;
 }
 
 .playlist-details h3 {
