@@ -2,6 +2,20 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { createPlaylist, addSongsToPlaylist, deleteList } from "../utils/api";
 
+/*
+
+TODO:
+
+- song removed from playlist (delete)
+- song moved to another playlist (insert, delete)
+- song moved to another playlist (insert)
+- song moved within playlist (reorder)
+- delete playlist
+- new playlist
+- playlist renamed
+
+*/
+
 const PlaylistDetails = ({
   playlist,
   setPlaylists,
@@ -24,26 +38,27 @@ const PlaylistDetails = ({
     const targetSongIndex =
       e.target.closest(".song-detail-item")?.dataset.index; // Get the index of the target item
 
-    console.log("HERE");
     setSongs((prevSongs) => {
       const updatedSongs = {
         ...prevSongs,
       };
       if (firstRun) {
+        console.log("orig", origPlaylistId);
         firstRun = false;
-        if (playlist.id != origPlaylistId) {
+        if (origPlaylistId === "master" || playlist.id != origPlaylistId) {
             const targetIndex = targetSongIndex !== undefined
                 ? parseInt(targetSongIndex, 10)
                 : updatedSongs[playlist.id].length;
             const sourceIndex = song.index;
-            console.log("THEN");
             updatedSongs[playlist.id].splice(targetIndex, 0, song); // Insert at the correct position
             for (let i = targetIndex; i < updatedSongs[playlist.id].length; i++) {
               updatedSongs[playlist.id][i].index = i;
             }
-            updatedSongs[origPlaylistId].splice(sourceIndex, 1);
-            for (let i = sourceIndex; i < updatedSongs[origPlaylistId].length; i++) {
-                updatedSongs[origPlaylistId][i].index = i;
+            if (origPlaylistId !== "master") {
+                updatedSongs[origPlaylistId].splice(sourceIndex, 1);
+                for (let i = sourceIndex; i < updatedSongs[origPlaylistId].length; i++) {
+                    updatedSongs[origPlaylistId][i].index = i;
+                }
             }
           } else {
             const targetIndex =
