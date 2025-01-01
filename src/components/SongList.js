@@ -1,21 +1,27 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const SongList = ({ songs, selectedSong, selectSong, repeats }) => (
+const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => (
   <ul className="song-list">
     {songs.map((song, index) => (
       <li
         key={index}
         className={`song-item ${
-          repeats.some((r) => r.name === song.name && r.artist === song.artist)
+          repeats.some((r) => r.uri == song.uri)
             ? "repeat"
             : ""
         } ${
-          selectedSong?.name === song.name && selectedSong?.artist === song.artist
+          selectedSong?.uri === song.uri
             ? "selected"
             : ""
         }`}
         onClick={() => selectSong(song)}
+        ref={(el) => {
+            if (!songRefs.current[song.uri]) {
+              songRefs.current[song.uri] = [];
+            }
+            songRefs.current[song.uri].push(el);
+          }}
       >
         <div className="song-name">{song.name}</div>
         <div className="song-artist">{song.artist}</div>
@@ -33,6 +39,7 @@ SongList.propTypes = {
     selectedSong: PropTypes.object,
     selectSong: PropTypes.func.isRequired,
     repeats: PropTypes.array.isRequired,
+    songRefs: PropTypes.object.isRequired,
 }
 
 export default SongList;

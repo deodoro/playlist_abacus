@@ -97,6 +97,19 @@ const PlaylistDetails = ({
     }
   };
 
+  const handleDelete = (playlistId, song) => {
+    setSongs((prevSongs) => {
+      const updatedSongs = { ...prevSongs };
+      updatedSongs[playlistId] = updatedSongs[playlistId].filter(
+        (s) => s.name !== song.name || s.artist !== song.artist
+      );
+      for (let i = 0; i < updatedSongs[playlistId].length; i++) {
+        updatedSongs[playlistId][i].index = i;
+      }
+      return updatedSongs;
+    });
+  };
+
   const handleDeleteList = async() => {
     const confirmDelete = window.confirm("Are you sure you want to delete this playlist?");
     if (!confirmDelete) return;
@@ -181,7 +194,8 @@ const PlaylistDetails = ({
               {Math.floor(song.duration / 60)}:
               {String(Math.floor(song.duration % 60)).padStart(2, "0")}
             </div>
-          </li>
+            <div className="delete-icon" onClick={() => handleDelete(playlist.id, song)}>🗑️</div>
+        </li>
         ))}
       </ul>
     </div>

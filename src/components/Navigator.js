@@ -30,6 +30,7 @@ const Navigator = () => {
         if (selectedPlaylists.length > 0) {
           setRepeats(findRepeats(songs, selectedPlaylists));
         } else {
+
           setRepeats([]);
         }
     }, [selectedPlaylists, songs]);
@@ -75,12 +76,12 @@ const Navigator = () => {
             <div className="left-panel">
                 <FilterBox filterText={filterText} setFilterText={setFilterText} />
                 <PlaylistSection playlists={playlists} selectedPlaylists={selectedPlaylists} togglePlaylistSelection={togglePlaylistSelection} />
-                <SongsSection songs={filteredSongs} selectedSong={selectedSong} selectSong={selectSong} repeats={repeats} />
+                <SongsSection songs={filteredSongs} selectedSong={selectedSong} selectSong={selectSong} repeats={repeats} songRefs={songRefs} />
             </div>
 
             <div className="right-panel">
                 {selectedPlaylists.map((playlist) => (
-                    <PlaylistDetails key={playlist.id} playlist={playlist} setPlaylists={setPlaylists} songs={songs[playlist.id]} repeats={repeats} selectedSong={selectedSong} setSelectedSong={setSelectedSong} setSongs={setSongs} songRefs={songRefs} />
+                    <PlaylistDetails key={playlist.id} playlist={playlist} setPlaylists={setPlaylists} songs={songs[playlist.id]} repeats={repeats} selectedSong={selectedSong} setSelectedSong={selectSong} setSongs={setSongs} songRefs={songRefs} />
                 ))}
                 <PlaylistActions selectedPlaylists={selectedPlaylists} playlists={playlists} setPlaylists={setPlaylists} songs={songs} setSongs={setSongs} actionPlaylistName={newPlaylistName} setActionPlaylistName={setNewPlaylistName} setSelectedPlaylists={setSelectedPlaylists} />
             </div>
