@@ -71,6 +71,11 @@ const Navigator = () => {
       song.artist.toLowerCase().includes(filterText.toLowerCase())
   )
 
+  const filteredPlaylists = playlists.filter(
+    (playlist) =>
+      playlist.name.toLowerCase().includes(filterText.toLowerCase())
+  )
+
   const isDirty = () => steps.length > 0;
 
   const applyChanges = async () => {
@@ -122,16 +127,15 @@ const Navigator = () => {
     };
 
   return (
-    <div className="flex gap-x-4 font-mono text-white text-sm font-bold leading-6">
+    <div className="flex text-gray-700 text-sm font-bold leading-6">
      {/* Left Panel */}
-      <div className="flex flex-col sticky top-0 h-screen w-1/4 p-4 bg-gray-100">
+      <div className="flex flex-col sticky top-0 bottom-0 h-screen w-1/4 p-4 bg-gray-100">
         <FilterBox filterText={filterText} setFilterText={setFilterText} />
         <PlaylistSection
-          playlists={playlists}
+          playlists={filteredPlaylists}
           selectedPlaylists={selectedPlaylists}
           togglePlaylistSelection={togglePlaylistSelection}
           deselectAllPlaylists={() => setSelectedPlaylists([])}
-          className="flex-1 overflow-auto"
         />
         <SongsSection
           songs={filteredSongs}
@@ -139,7 +143,6 @@ const Navigator = () => {
           selectSong={selectSong}
           repeats={repeats}
           songRefs={songRefs}
-          className="flex-1 overflow-auto"
         />
         {isDirty() && (
         <div className="mt-4 p-4 bg-white shadow-md rounded-md">
@@ -153,7 +156,7 @@ const Navigator = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="p-4 bg-gray-50 grid grid-cols-3 gap-4 auto-rows-[50%]">
+      <div className="p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 auto-rows-[50%] w-full h-screen overflow-auto">
         {selectedPlaylists.map((playlist) => (
           <PlaylistDetails
             key={playlist.id}
@@ -187,84 +190,3 @@ const Navigator = () => {
 }
 
 export default Navigator
-
-
-// <div className="flex h-screen">
-//   {/* Left Panel */}
-//   <div className="w-1/3 flex flex-col p-4 bg-gray-100">
-//     {/* FilterBox */}
-//     <div className="mb-4">
-//       <FilterBox filterText={filterText} setFilterText={setFilterText} />
-//     </div>
-//     {/* PlaylistSection */}
-//     <div className="flex-1 flex flex-col overflow-auto">
-//       <PlaylistSection
-//         playlists={playlists}
-//         selectedPlaylists={selectedPlaylists}
-//         togglePlaylistSelection={togglePlaylistSelection}
-//         deselectAllPlaylists={() => setSelectedPlaylists([])}
-//       />
-//     </div>
-//     {/* SongsSection */}
-//     <div className="flex-1 flex flex-col overflow-auto">
-//       <SongsSection
-//         songs={filteredSongs}
-//         selectedSong={selectedSong}
-//         selectSong={selectSong}
-//         repeats={repeats}
-//         songRefs={songRefs}
-//       />
-//     </div>
-//     {/* Bottom Panel */}
-//     {isDirty() && (
-//       <div className="mt-4 p-4 bg-white shadow-md rounded-md">
-//         <h3 className="text-lg font-semibold">
-//           {steps.length} change{steps.length > 1 ? "s" : ""} to be applied
-//         </h3>
-//         <div className="flex justify-between mt-2">
-//           <button
-//             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-//             onClick={applyChanges}
-//           >
-//             Apply
-//           </button>
-//           <button
-//             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-//             onClick={revertChanges}
-//           >
-//             Revert
-//           </button>
-//         </div>
-//       </div>
-//     )}
-//   </div>
-
-//   {/* Right Panel */}
-//   <div className="w-2/3 p-4 bg-gray-50 overflow-auto">
-//     {selectedPlaylists.map((playlist) => (
-//       <PlaylistDetails
-//         key={playlist.id}
-//         playlist={playlist}
-//         setPlaylists={setPlaylists}
-//         songs={songs[playlist.id]}
-//         repeats={repeats}
-//         selectedSong={selectedSong}
-//         setSelectedSong={selectSong}
-//         setSongs={setSongs}
-//         songRefs={songRefs}
-//         setSteps={setSteps}
-//         setSelectedPlaylists={setSelectedPlaylists}
-//       />
-//     ))}
-//     <PlaylistActions
-//       selectedPlaylists={selectedPlaylists}
-//       playlists={playlists}
-//       setPlaylists={setPlaylists}
-//       songs={songs}
-//       setSongs={setSongs}
-//       actionPlaylistName={newPlaylistName}
-//       setActionPlaylistName={setNewPlaylistName}
-//       setSelectedPlaylists={setSelectedPlaylists}
-//     />
-//   </div>
-// </div>

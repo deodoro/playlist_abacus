@@ -12,14 +12,14 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
       {songs.map((song, index) => (
         <li
           key={index}
-          className={`p-4 flex items-center justify-between rounded-md cursor-pointer ${
-            repeats.some((r) => r.uri === song.uri)
-              ? "bg-yellow-100"
-              : "bg-white"
+          className={`p-4 flex items-center justify-between cursor-pointer ${
+            repeats.some((r) => r.uri === song.uri) && (selectedSong?.uri !== song.uri)
+              ? "bg-yellow-50"
+              : "bg-gray-100"
           } ${
             selectedSong?.uri === song.uri
-              ? "bg-blue-500 text-white"
-              : "hover:bg-gray-100"
+              ? "bg-blue-600 text-white"
+              : "hover:bg-gray-400"
           }`}
           onClick={() => selectSong(song)}
           ref={(el) => {
@@ -31,9 +31,31 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
           onDragStart={(e) => handleDragStart(e, song)}
           draggable
         >
-          <div className="flex-1 text-gray-800 truncate">{song.name}</div>
-          <div className="flex-1 text-gray-600 truncate">{song.artist}</div>
-          <div className="text-gray-500 text-sm">
+          {/* Left Section: Song Image */}
+          <div className="flex-shrink-0">
+            <img
+              src={song.image || "https://via.placeholder.com/40"}
+              alt={song.name}
+              className="w-10 h-10 rounded-full"
+            />
+          </div>
+
+          {/* Middle Section: Song Details */}
+          <div className="flex flex-col flex-1 px-4 truncate">
+            <span className={`font-medium text-wrap ${
+                selectedSong?.uri === song.uri
+                ? "text-white"
+                : "text-gray-800"
+            }`}>{song.name}</span>
+            <span className={`text-sm text-wrap ${
+                selectedSong?.uri === song.uri
+                ? "text-gray-400"
+                : "text-gray-500"
+            }`}>{song.artist}</span>
+          </div>
+
+          {/* Right Section: Song Duration */}
+          <div className={"text-gray-300 text-sm font-semibold"} >
             {Math.floor(song.duration / 60)}:
             {Math.floor(song.duration % 60).toString().padStart(2, "0")}
           </div>

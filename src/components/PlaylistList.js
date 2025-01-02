@@ -2,17 +2,17 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const PlaylistList = ({ playlists, selectedPlaylists, togglePlaylistSelection }) => (
-  <ul className="divide-y divide-gray-200">
+  <ul className="">
     {playlists
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((playlist) => (
         <li
           key={playlist.id}
           onClick={() => togglePlaylistSelection(playlist)}
-          className={`cursor-pointer p-2 rounded-md ${
+          className={`cursor-pointer p-2 ${
             selectedPlaylists.some((p) => p.id === playlist.id)
               ? "bg-blue-500 text-white"
-              : "bg-white text-gray-800 hover:bg-gray-100"
+              : "text-gray-800 hover:bg-gray-100"
           }`}
         >
           {playlist.name}
