@@ -14,17 +14,16 @@ const PlaylistDetails = ({
     setSteps,
     setSelectedPlaylists,
 }) => {
-    const [length, setLength] = useState(0)
+    const [length, setLength] = useState("0:00")
 
     useEffect(() => {
-        setLength(
-            songs
-                ? Math.round(
-                      songs.reduce((acc, { duration }) => acc + duration, 0) /
-                          3600
-                  ) / 100
-                : 0
-        )
+        if (songs){
+            const hours =  songs.reduce((acc, { duration }) => acc + duration, 0);
+            console.log(hours);
+            setLength(`${Math.floor(hours / 3600)}:${String(Math.floor(hours/60) % 60).padStart(2, '0')}`);
+        }
+        else
+            setLength("0:00")
     }, [songs])
 
     const handleDragStart = (e, song) => {
@@ -177,10 +176,10 @@ const PlaylistDetails = ({
         >
             <h3 className='sticky top-0 z-10 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between'>
                 {playlist.name}
-                <span className='text-xs text-gray-600'>
+                <span className='text-xs text-gray-400'>
                     {songs?.length || 0} songs
                 </span>
-                <span className='text-xs text-gray-600'>{length} hours</span>
+                <span className='text-xs text-gray-400'>{length} hours</span>
                 <div className='flex space-x-2 text-xs'>
                     <button
                         className='text-purple-500 hover:underline'

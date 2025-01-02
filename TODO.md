@@ -9,3 +9,4 @@ TODO:
 - Color code by song, artist, genre
 - List boxes for artist and genre
 - Copy on drop
+-

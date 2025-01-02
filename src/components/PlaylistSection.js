@@ -2,7 +2,7 @@ import React from "react";
 import PlaylistList from "./PlaylistList";
 import PropTypes from "prop-types";
 
-const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists, className }) => {
+const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists }) => {
   return (
     <div className="flex-1 overflow-auto relative">
       {/* Sticky Header */}
