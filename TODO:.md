@@ -8,3 +8,4 @@ TODO:
 - Create list from JSON file
 - Color code by song, artist, genre
 - List boxes for artist and genre
+- Copy on drop

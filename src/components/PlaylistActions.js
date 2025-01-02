@@ -1,99 +1,98 @@
 import React from "react";
-import { deduplicate } from "../utils/helpers";
 import PropTypes from "prop-types";
+import { deduplicate } from "../utils/helpers";
 
 const PlaylistActions = ({
   selectedPlaylists,
-  playlists,
   setPlaylists,
   setSongs,
   actionPlaylistName,
   setActionPlaylistName,
   repeats,
-  setSelectedPlaylists,
 }) => {
   const handleAction = (actionType) => {
     if (!actionPlaylistName) return;
 
-    const newPlaylist = {
-      id: `${Date.now()}`,
-      name: actionPlaylistName,
-    };
-
-    setPlaylists([...playlists, newPlaylist]);
-    setSelectedPlaylists((prev) => [...prev, newPlaylist]);
-
-    setSongs((prevSongs) => {
-      let updatedSongs = { ...prevSongs };
-
+    const newPlaylist = { id: `${Date.now()}`, name: actionPlaylistName };
+    setPlaylists((prev) => [...prev, newPlaylist]);
+    setSongs((prev) => {
+      const updatedSongs = { ...prev };
       switch (actionType) {
         case "merge":
           updatedSongs[newPlaylist.id] = deduplicate(
-            selectedPlaylists.flatMap((p) => prevSongs[p.id] || [])
+            selectedPlaylists.flatMap((p) => prev[p.id] || [])
           );
           break;
-
         case "intersect":
           updatedSongs[newPlaylist.id] = repeats;
           break;
-
         case "diff":
           updatedSongs[newPlaylist.id] = deduplicate(
             selectedPlaylists.reduce((acc, p, idx) => {
-              const songsList = prevSongs[p.id] || [];
-              if (idx === 0) return songsList;
-              return acc.filter(
-                (song) => !songsList.some((s) => s.name === song.name && s.artist === song.artist)
-              );
+              const songsList = prev[p.id] || [];
+              return idx === 0
+                ? songsList
+                : acc.filter(
+                    (song) =>
+                      !songsList.some(
+                        (s) => s.name === song.name && s.artist === song.artist
+                      )
+                  );
             }, [])
           );
           break;
-
         default:
           break;
       }
-
       return updatedSongs;
     });
-
     setActionPlaylistName("");
   };
 
   return (
-    <div className="playlist-actions playlist-details merge">
-      <h3>Actions</h3>
-      <div>
-        <input
-          type="text"
-          placeholder="New Playlist Name"
-          value={actionPlaylistName}
-          onChange={(e) => setActionPlaylistName(e.target.value)}
-        />
-        <p><a href="#" onClick={() => handleAction("merge")} disabled={selectedPlaylists.length < 2}>
-          Merge
-        </a> all songs from selected playlists</p>
-
-        <p><a href="#" onClick={() => handleAction("intersect")} disabled={repeats && repeats.length === 0}>
-          Intersect
-        </a> songs in all selected lists</p>
-        <p><a href="#" onClick={() => handleAction("diff")} disabled={selectedPlaylists.length < 2}>
-          Diff
-        </a> songs in first list not in others</p>
-      </div>
+    <div className="bg-gray-100 p-4 rounded-md shadow-md">
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">Actions</h3>
+      <input
+        type="text"
+        className="w-full mb-2 p-2 border rounded"
+        placeholder="New Playlist Name"
+        value={actionPlaylistName}
+        onChange={(e) => setActionPlaylistName(e.target.value)}
+      />
+      <button
+        className="w-full bg-blue-500 text-white p-2 rounded mb-2"
+        onClick={() => handleAction("merge")}
+        disabled={selectedPlaylists.length < 2}
+      >
+        Merge
+      </button>
+      <button
+        className="w-full bg-yellow-500 text-white p-2 rounded mb-2"
+        onClick={() => handleAction("intersect")}
+        disabled={!repeats || repeats.length === 0}
+      >
+        Intersect
+      </button>
+      <button
+        className="w-full bg-red-500 text-white p-2 rounded"
+        onClick={() => handleAction("diff")}
+        disabled={selectedPlaylists.length < 2}
+      >
+        Diff
+      </button>
     </div>
   );
 };
 
 PlaylistActions.propTypes = {
-    selectedPlaylists: PropTypes.array.isRequired,
-    playlists: PropTypes.array.isRequired,
-    setPlaylists: PropTypes.func.isRequired,
-    songs: PropTypes.object.isRequired,
-    setSongs: PropTypes.func.isRequired,
-    actionPlaylistName: PropTypes.string.isRequired,
-    setActionPlaylistName: PropTypes.func.isRequired,
-    repeats: PropTypes.array.isRequired,
-    setSelectedPlaylists: PropTypes.func.isRequired,
+  selectedPlaylists: PropTypes.array.isRequired,
+  playlists: PropTypes.array.isRequired,
+  setPlaylists: PropTypes.func.isRequired,
+  setSongs: PropTypes.func.isRequired,
+  actionPlaylistName: PropTypes.string.isRequired,
+  setActionPlaylistName: PropTypes.func.isRequired,
+  repeats: PropTypes.array.isRequired,
+  setSelectedPlaylists: PropTypes.func.isRequired,
 };
 
 export default PlaylistActions;

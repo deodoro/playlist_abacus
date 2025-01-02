@@ -133,11 +133,12 @@ div.songs h3 .info {
   flex-wrap: wrap;
   overflow-y: auto;
   flex-direction: row;
+  justify-content: space-between;
 }
 
 /* Playlist Details */
 .playlist-details {
-  width: 33%;
+  width: 30%;
   height: 50%;
   background-color: white;
   border: none;
@@ -290,4 +291,8 @@ div.songs h3 .info {
 .bottom-panel button {
     font-size: 1em;
     margin-right: 1em;
+}
+
+.playlist-actions h3 {
+    border-bottom: #aaa 1px solid;
 }

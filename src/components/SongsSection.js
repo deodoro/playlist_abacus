@@ -4,12 +4,13 @@ import PropTypes from "prop-types";
 
 const SongsSection = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
   return (
-    <div className="songs">
-      <h3>Songs
-        <span className="song-count info">
+    <div className="bg-gray-100 p-4 rounded-md shadow-md">
+      <h3 className="text-lg font-semibold text-gray-800 flex items-center justify-between">
+        Songs
+        <span className="text-sm text-gray-600">
           {songs.length} songs
         </span>
-        <span className="repeat-count info">
+        <span className="text-sm text-red-500">
           {repeats.length} repeated
         </span>
       </h3>
@@ -25,11 +26,11 @@ const SongsSection = ({ songs, selectedSong, selectSong, repeats, songRefs }) =>
 };
 
 SongsSection.propTypes = {
-    songs: PropTypes.array.isRequired,
-    selectedSong: PropTypes.object,
-    selectSong: PropTypes.func.isRequired,
-    repeats: PropTypes.array.isRequired,
-    songRefs: PropTypes.object.isRequired,
+  songs: PropTypes.array.isRequired,
+  selectedSong: PropTypes.object,
+  selectSong: PropTypes.func.isRequired,
+  repeats: PropTypes.array.isRequired,
+  songRefs: PropTypes.object.isRequired,
 };
 
 export default SongsSection;

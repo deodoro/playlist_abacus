@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import './Navigator.css'
 import FilterBox from './FilterBox'
 import useNavigatorState from '../hooks/useNavigatorState'
 import { deduplicate, findRepeats } from '../utils/helpers'
@@ -123,9 +122,9 @@ const Navigator = () => {
     };
 
   return (
-    <div className='navigator-container'>
+    <div className="flex">
       {/* Left Panel */}
-      <div className='left-panel'>
+      <div className="w-1/3 p-4 bg-gray-100">
         <FilterBox filterText={filterText} setFilterText={setFilterText} />
         <PlaylistSection
           playlists={playlists}
@@ -141,17 +140,18 @@ const Navigator = () => {
           songRefs={songRefs}
         />
         {isDirty() && (
-        <div className='bottom-panel'>
-            <h3>{steps.length} change{steps.length > 1 ? 's':''} to be applied</h3>
-            <div>
-                <button onClick={applyChanges}>Apply</button>
-                <button onClick={revertChanges}>Revert</button>
+        <div className="mt-4 p-4 bg-white shadow-md rounded-md">
+            <h3 className="text-lg font-semibold">{steps.length} change{steps.length > 1 ? 's':''} to be applied</h3>
+            <div className="flex justify-between mt-2">
+                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={applyChanges}>Apply</button>
+                <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onClick={revertChanges}>Revert</button>
             </div>
         </div>
         )}
       </div>
 
-      <div className='right-panel'>
+      {/* Right Panel */}
+      <div className="w-2/3 p-4 bg-gray-50">
         {selectedPlaylists.map((playlist) => (
           <PlaylistDetails
             key={playlist.id}
