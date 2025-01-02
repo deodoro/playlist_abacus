@@ -8,7 +8,7 @@ import Navigator from "./components/Navigator";
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/playlist_abacus">
         <Routes>
             <Route path="/" element={<LoginButton />} />
             <Route path="/callback" element={<Callback />} />
