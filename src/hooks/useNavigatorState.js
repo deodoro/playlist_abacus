@@ -6,6 +6,7 @@ const useNavigatorState = () => {
   const [playlists, setPlaylists] = useState([]);
   const [songs, setSongs] = useState({});
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
+  const [steps, setSteps] = useState([]);
 
   useEffect(() => {
     fetchPlaylists().then((data) =>
@@ -30,7 +31,7 @@ const useNavigatorState = () => {
       });
   };
 
-  return { playlists, setPlaylists, songs, setSongs, selectedPlaylists, setSelectedPlaylists, fetchPlaylistSongs };
+  return { playlists, setPlaylists, songs, setSongs, selectedPlaylists, setSelectedPlaylists, fetchPlaylistSongs, steps, setSteps };
 };
 
 useNavigatorState.propTypes = {
@@ -41,6 +42,8 @@ useNavigatorState.propTypes = {
   selectedPlaylists: PropTypes.array.isRequired,
   setSelectedPlaylists: PropTypes.func.isRequired,
   fetchPlaylistSongs: PropTypes.func.isRequired,
+  steps: PropTypes.array.isRequired,
+  setSteps: PropTypes.func.isRequired
 };
 
 export default useNavigatorState;

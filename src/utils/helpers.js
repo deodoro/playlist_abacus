@@ -21,7 +21,7 @@ export const deduplicate = (songs) => {
           ? playlistSongs
           : repeatsList.filter((song) =>
               playlistSongs.some(
-                (s) => s.name === song.name && s.artist === song.artist
+                (s) => s.uri === song.uri
               )
             );
         flag = false;

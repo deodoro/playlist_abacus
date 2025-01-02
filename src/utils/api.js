@@ -1,24 +1,3 @@
-// const getToken = async () => {
-
-//     const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
-//     const clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
-//     const authHeader = btoa(`${clientId}:${clientSecret}`);
-
-
-//     const response = await fetch("https://accounts.spotify.com/api/token", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/x-www-form-urlencoded",
-//             Authorization: `Basic ${authHeader}`,
-//         },
-//         body: "grant_type=client_credentials",
-//     });
-
-//     const data = await response.json();
-//     if (!response.ok) throw new Error(data.error || "Failed to fetch token");
-//     return data.access_token;
-// };
-
 const getToken = async () => {
     const token = localStorage.getItem("spotifyAccessToken");
     if (token)
@@ -114,4 +93,62 @@ export const deleteList = async (playlistId) => {
 
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     return "Playlist successfully deleted (unfollowed)";
+};
+
+export const addSongToPlaylistAtPosition = async (playlistId, songUri, position) => {
+    const token = await getToken();
+    const response = await fetch(
+        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                uris: [songUri],
+                position: position, // Specify the position where the song should be added
+            }),
+        }
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return await response.json();
+};
+
+export const moveTrackInPlaylist = async (playlistId, sourceIndex, targetIndex) => {
+    const token = await getToken();
+    const response = await fetch(
+        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                range_start: sourceIndex,
+                insert_before: targetIndex,
+            }),
+        }
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return await response.json();
+};
+
+export const removeSongFromPlaylist = async (playlistId, songUri) => {
+    const token = await getToken();
+    const response = await fetch(
+        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                tracks: [{
+                    uri: songUri,
+                }],
+            }),
+        }
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return await response.json();
 };
