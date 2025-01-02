@@ -50,7 +50,7 @@ const PlaylistActions = ({
   };
 
   return (
-    <div className="bg-gray-100 p-4 rounded-md shadow-md">
+    <div className="bg-gray-100 p-4 rounded-md shadow-md h-[50vh] overflow-hidden">
       <h3 className="text-lg font-semibold text-gray-800 mb-2">Actions</h3>
       <input
         type="text"

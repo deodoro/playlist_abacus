@@ -10,7 +10,7 @@
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-router-dom": "^7.1.1",
-        "react-scripts": "5.0.1"
+        "serve": "^14.2.4"
     },
     "scripts": {
         "build:css": "npx tailwindcss -i ./src/index.css -o ./src/index.css --watch",
@@ -40,6 +40,7 @@
     "devDependencies": {
         "autoprefixer": "^10.4.20",
         "postcss": "^8.4.49",
+        "react-scripts": "^5.0.1",
         "tailwindcss": "^3.4.17"
     }
 }

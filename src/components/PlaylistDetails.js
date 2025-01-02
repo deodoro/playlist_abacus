@@ -76,7 +76,7 @@ const PlaylistDetails = ({
 
   return (
     <div
-      className="bg-gray-100 p-4 rounded-md shadow-md mb-4"
+      className="bg-gray-100 p-4 rounded-md shadow-md h-[50vh] overflow-auto"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
@@ -119,12 +119,11 @@ const PlaylistDetails = ({
             onClick={() => setSelectedSong(song)}
             data-index={index}
           >
-            <div className="w-8 text-center">{song.index + 1}</div>
-            <div className="flex-1 truncate">{song.name}</div>
+            <div className="flex-1 text-gray-600">{song.index + 1}. {song.name}</div>
             <div className="flex-1 text-gray-600">{song.artist}</div>
-            <div className="w-16 text-right text-sm text-gray-500">
+            <div className="w-16 truncate text-sm text-gray-500">
               {Math.floor(song.duration / 60)}:
-              {String(song.duration % 60).padStart(2, "0")}
+              {String(Math.floor(song.duration % 60)).padStart(2, "0")}
             </div>
             <button
               className="ml-4 text-red-500"

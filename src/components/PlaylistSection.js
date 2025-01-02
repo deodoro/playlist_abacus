@@ -2,9 +2,9 @@ import React from "react";
 import PlaylistList from "./PlaylistList";
 import PropTypes from "prop-types";
 
-const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists }) => {
+const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists, className }) => {
   return (
-    <div className="bg-gray-100 p-4 rounded-md shadow-md">
+    <div className={className}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold text-gray-800">Playlists</h3>
         <button
@@ -33,6 +33,7 @@ PlaylistSection.propTypes = {
   selectedPlaylists: PropTypes.array.isRequired,
   togglePlaylistSelection: PropTypes.func.isRequired,
   deselectAllPlaylists: PropTypes.func.isRequired,
+  className: PropTypes.string,
 };
 
 export default PlaylistSection;
