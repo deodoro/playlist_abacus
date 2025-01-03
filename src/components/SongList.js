@@ -8,14 +8,14 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
   };
 
   return (
-    <ul className="divide-y divide-gray-200">
+    <ul className="divide-y divide-gray-300 px-2">
       {songs.map((song, index) => (
         <li
           key={index}
-          className={`p-4 flex items-center justify-between cursor-pointer ${
+          className={`flex items-center justify-between cursor-pointer py-2 ${
             repeats.some((r) => r.uri === song.uri) && (selectedSong?.uri !== song.uri)
               ? "bg-yellow-50"
-              : "bg-gray-100"
+              : ""
           } ${
             selectedSong?.uri === song.uri
               ? "bg-blue-600 text-white"
@@ -42,7 +42,7 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
 
           {/* Middle Section: Song Details */}
           <div className="flex flex-col flex-1 px-4 truncate">
-            <span className={`font-medium text-wrap ${
+            <span className={`text-wrap ${
                 selectedSong?.uri === song.uri
                 ? "text-white"
                 : "text-gray-800"

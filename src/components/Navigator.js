@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import FilterBox from './FilterBox'
 import useNavigatorState from '../hooks/useNavigatorState'
 import { deduplicate, findRepeats } from '../utils/helpers'
 import PlaylistSection from './PlaylistSection'
@@ -127,31 +126,54 @@ const Navigator = () => {
     };
 
   return (
-    <div className="flex text-gray-700 text-sm font-bold leading-6">
+    <div className="flex text-gray-700 text-sm leading-6">
      {/* Left Panel */}
-      <div className="flex flex-col sticky top-0 bottom-0 h-screen w-1/4 p-4 bg-gray-100">
-        <FilterBox filterText={filterText} setFilterText={setFilterText} />
-        <PlaylistSection
-          playlists={filteredPlaylists}
-          selectedPlaylists={selectedPlaylists}
-          togglePlaylistSelection={togglePlaylistSelection}
-          deselectAllPlaylists={() => setSelectedPlaylists([])}
-        />
-        <SongsSection
-          songs={filteredSongs}
-          selectedSong={selectedSong}
-          selectSong={selectSong}
-          repeats={repeats}
-          songRefs={songRefs}
-        />
-        {isDirty() && (
-        <div className="mt-4 p-4 bg-white shadow-md rounded-md">
-            <h3 className="text-lg font-semibold">{steps.length} change{steps.length > 1 ? 's':''} to be applied</h3>
-            <div className="flex justify-between mt-2">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={applyChanges}>Apply</button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onClick={revertChanges}>Revert</button>
-            </div>
+     <div className="flex flex-col sticky top-0 bottom-0 h-screen w-1/4 bg-gray-100">
+        {/* FilterBox and PlaylistSection */}
+        <div className="p-4 flex-1 overflow-auto relative">
+            {/* <FilterBox filterText={filterText} setFilterText={setFilterText} /> */}
+            <PlaylistSection
+            playlists={filteredPlaylists}
+            selectedPlaylists={selectedPlaylists}
+            togglePlaylistSelection={togglePlaylistSelection}
+            deselectAllPlaylists={() => setSelectedPlaylists([])}
+            filterText={filterText}
+            setFilterText={setFilterText}
+            />
         </div>
+
+        {/* SongsSection */}
+        <div className="flex-1 bg-gray-400 p-4 flex-1 overflow-auto relative">
+            <SongsSection
+            songs={filteredSongs}
+            selectedSong={selectedSong}
+            selectSong={selectSong}
+            repeats={repeats}
+            songRefs={songRefs}
+            />
+        </div>
+
+        {isDirty() && (
+            <div className="mt-4 p-4 bg-white shadow-md rounded-md">
+            <h3 className="text-lg font-semibold">
+                {steps.length} change{steps.length > 1 ? "s" : ""} to be applied
+            </h3>
+            <div className="flex justify-between mt-2">
+                <button
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                onClick={applyChanges}
+                >
+                Apply
+                </button>
+                <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                onClick={revertChanges}
+                >
+                Revert
+                </button>
+            </div>
+            </div>
+
         )}
       </div>
 

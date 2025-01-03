@@ -4,7 +4,15 @@ module.exports = {
       "./public/index.html", // If you intentionally want to scan `index.html`
     ],
     theme: {
-      extend: {},
-    },
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'sans-serif'], // Set Geist as the primary font
+          },
+          fontWeight: {
+            light: '300', // Tailwind's `font-light`
+          },
+        },
+      },
+
     plugins: [],
   };

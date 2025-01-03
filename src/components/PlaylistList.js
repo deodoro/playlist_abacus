@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const PlaylistList = ({ playlists, selectedPlaylists, togglePlaylistSelection }) => (
-  <ul className="">
+  <ul className="px-2">
     {playlists
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((playlist) => (
