@@ -14,8 +14,8 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
           key={index}
           className={`flex items-center justify-between cursor-pointer py-2 ${
             repeats.some((r) => r.uri === song.uri) && (selectedSong?.uri !== song.uri)
-              ? "bg-yellow-50"
-              : ""
+              ? "text-orange-200"
+              : "text-gray-800"
           } ${
             selectedSong?.uri === song.uri
               ? "bg-blue-600 text-white"
@@ -45,12 +45,12 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
             <span className={`text-wrap ${
                 selectedSong?.uri === song.uri
                 ? "text-white"
-                : "text-gray-800"
+                : ""
             }`}>{song.name}</span>
             <span className={`text-sm text-wrap ${
                 selectedSong?.uri === song.uri
                 ? "text-gray-400"
-                : "text-gray-500"
+                : "opacity-60"
             }`}>{song.artist}</span>
           </div>
 

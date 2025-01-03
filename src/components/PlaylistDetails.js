@@ -71,7 +71,8 @@ const PlaylistDetails = ({
                             index: targetIndex,
                         },
                     ])
-                    if (origPlaylistId !== 'master') {
+                    console.log(event.shiftKey);
+                    if (origPlaylistId !== 'master' && event.shiftKey) {
                         updatedSongs[origPlaylistId].splice(sourceIndex, 1)
                         for (
                             let i = sourceIndex;
