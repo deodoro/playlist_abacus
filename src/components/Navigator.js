@@ -198,8 +198,10 @@ const Navigator = () => {
           selectedPlaylists={selectedPlaylists}
           playlists={playlists}
           setPlaylists={setPlaylists}
-          songs={songs}
           setSongs={setSongs}
+          songs={songs}
+          setSteps={setSteps}
+          repeats={repeats}
           actionPlaylistName={newPlaylistName}
           setActionPlaylistName={setNewPlaylistName}
           setSelectedPlaylists={setSelectedPlaylists}
