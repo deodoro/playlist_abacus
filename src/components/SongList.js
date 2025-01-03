@@ -14,7 +14,7 @@ const SongList = ({ songs, selectedSong, selectSong, repeats, songRefs }) => {
           key={index}
           className={`flex items-center justify-between cursor-pointer py-2 ${
             repeats.some((r) => r.uri === song.uri) && (selectedSong?.uri !== song.uri)
-              ? "text-orange-200"
+              ? "text-orange-300 font-[400]"
               : "text-gray-800"
           } ${
             selectedSong?.uri === song.uri

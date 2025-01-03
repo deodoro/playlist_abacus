@@ -1,7 +1,7 @@
 TODO:
 
 v Actions to steps
-- Build to both envs
+v Build to both envs
 - Help
 - Movie
 - Backup to JSON file
@@ -10,6 +10,6 @@ v Actions to steps
 - List boxes for artist and genre
 v Copy on drop
 
-- Search in Spotify(?)
+- Search in Spotify
 - Play songs
 v Pictures

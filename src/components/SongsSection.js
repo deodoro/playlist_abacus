@@ -16,7 +16,7 @@ const SongsSection = ({
         <h3 className="text-lg font-semibold flex items-center justify-between">
           <span>Songs</span>
           <span className="text-sm text-gray-300">{songs.length} songs</span>
-          <span className="text-sm text-orange-400">{repeats.length} repeated</span>
+          <span className="text-sm text-orange-200">{repeats.length} repeated</span>
         </h3>
       </div>
 

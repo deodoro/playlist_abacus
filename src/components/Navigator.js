@@ -154,7 +154,7 @@ const Navigator = () => {
         </div>
 
         {isDirty() && (
-            <div className="mt-4 p-4 bg-white shadow-md rounded-md">
+            <div className="p-4 bg-white shadow-md rounded-md fixed bottom-0">
             <h3 className="text-lg font-semibold">
                 {steps.length} change{steps.length > 1 ? "s" : ""} to be applied
             </h3>

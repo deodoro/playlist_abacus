@@ -183,7 +183,7 @@ const PlaylistDetails = ({
                 <span className='text-xs text-gray-400'>{length} hours</span>
                 <div className='flex space-x-2 text-xs'>
                     <button
-                        className='text-purple-500 hover:underline'
+                        className='text-green-600 hover:underline'
                         onClick={cloneList}
                     >
                         Clone
@@ -209,7 +209,7 @@ const PlaylistDetails = ({
                         className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md ${
                             selectedSong?.uri === song.uri
                                 ? 'bg-blue-500 text-white'
-                                : (repeats.some((r) => r.uri === song.uri) ? 'bg-yellow-100' : '')
+                                : (repeats.some((r) => r.uri === song.uri) ? 'text-orange-300 font-[400]' : '')
                         }`}
                         draggable
                         ref={(el) => {
@@ -232,7 +232,7 @@ const PlaylistDetails = ({
                         </div>
 
                         {/* Song Duration */}
-                        <div className='w-16 text-sm text-gray-500 text-right'>
+                        <div className='w-16 text-sm text-right'>
                             {Math.floor(song.duration / 60)}:
                             {String(Math.floor(song.duration % 60)).padStart(
                                 2,
