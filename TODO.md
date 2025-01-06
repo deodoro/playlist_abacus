@@ -13,4 +13,4 @@ v Copy on drop
 - Search in Spotify
 - Play songs
 v Pictures
-- Undo
+v Undo

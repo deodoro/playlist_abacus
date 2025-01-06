@@ -143,7 +143,7 @@ const PlaylistDetails = ({
          {
             op: Operations.OP_DELETE_PLAYLIST,
             playlist: playlist,
-            songs: [...songs[playlist.id]],
+            songs: [...songs],
             tId: String(Date.now()),
          },
       ])

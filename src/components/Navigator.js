@@ -106,8 +106,8 @@ const Navigator = () => {
                break
             }
             case Operations.OP_DELETE_PLAYLIST: {
-               console.log(`DELETE LIST ${step.playlistId}`)
-               await deleteList(step.playlistId)
+               console.log(`DELETE LIST ${step.playlist.id}`)
+               await deleteList(step.playlist.id)
                break
             }
             case Operations.OP_NEW_PLAYLIST: {
@@ -118,7 +118,7 @@ const Navigator = () => {
             }
          }
       }
-      revertChanges()
+      setSteps([])
    }
 
    const revertChanges = () => {
