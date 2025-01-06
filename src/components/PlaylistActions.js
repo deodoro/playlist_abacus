@@ -61,6 +61,7 @@ const PlaylistActions = ({
                 op: Operations.OP_NEW_PLAYLIST,
                 playlist: newPlaylist,
                 uris: affectedSongs.map((song) => song.uri),
+                tId: String(Date.now()),
             },
         ])
         setActionPlaylistName('')
