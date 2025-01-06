@@ -171,88 +171,94 @@ const PlaylistDetails = ({
 
     return (
         <div
-            className='bg-gray-100 p-4 rounded-md shadow-md h-[50vh] overflow-auto'
+            className='bg-gray-100 p-4 rounded-md shadow-md h-[50vh] pt-0'
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
         >
-            <h3 className='sticky top-0 z-10 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between'>
-                {playlist.name}
-                <span className='text-xs text-gray-400'>
-                    {songs?.length || 0} songs
-                </span>
-                <span className='text-xs text-gray-400'>{length} hours</span>
-                <div className='flex space-x-2 text-xs'>
-                    <button
-                        className='text-green-600 hover:underline'
-                        onClick={cloneList}
-                    >
-                        Clone
-                    </button>
-                    <button
-                        className='text-red-500 hover:underline'
-                        onClick={handleDeleteList}
-                    >
-                        Delete
-                    </button>
-                    <button
-                        className='text-blue-500 hover:underline'
-                        onClick={handleDeselect}
-                    >
-                        Deselect
-                    </button>
-                </div>
-            </h3>
-            <ul className='divide-y divide-gray-200'>
-                {songs?.map((song, index) => (
-                    <li
-                        key={index}
-                        className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md ${
-                            selectedSong?.uri === song.uri
-                                ? 'bg-blue-500 text-white'
-                                : (repeats.some((r) => r.uri === song.uri) ? 'text-orange-300 font-[400]' : '')
-                        }`}
-                        draggable
-                        ref={(el) => {
-                            if (!songRefs.current[song.uri])
-                                songRefs.current[song.uri] = []
-                            songRefs.current[song.uri].push(el)
-                        }}
-                        onDragStart={(e) => handleDragStart(e, song)}
-                        onClick={() => setSelectedSong(song)}
-                        data-index={index}
-                    >
-                        {/* Song Index and Name */}
-                        <div className='flex-1 break-words'>
-                            {song.index + 1}. {song.name}
-                        </div>
-
-                        {/* Song Artist */}
-                        <div className='flex-1 break-words'>
-                            {song.artist}
-                        </div>
-
-                        {/* Song Duration */}
-                        <div className='w-16 text-sm text-right'>
-                            {Math.floor(song.duration / 60)}:
-                            {String(Math.floor(song.duration % 60)).padStart(
-                                2,
-                                '0'
-                            )}
-                        </div>
-
-                        {/* Delete Button */}
+        <div className="flex flex-col h-full">
+            <div className=''>
+                <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
+                    {playlist.name}
+                    <span className='text-xs text-gray-400'>
+                        {songs?.length || 0} songs
+                    </span>
+                    <span className='text-xs text-gray-400'>{length} hours</span>
+                    <div className='flex space-x-2 text-xs'>
                         <button
-                            className='ml-4 text-red-500'
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                // Implement delete song logic
-                            }}
+                            className='text-green-600 hover:underline'
+                            onClick={cloneList}
                         >
-                            ⊗
+                            Clone
                         </button>
-                    </li>
-                ))}
-            </ul>
+                        <button
+                            className='text-red-500 hover:underline'
+                            onClick={handleDeleteList}
+                        >
+                            Delete
+                        </button>
+                        <button
+                            className='text-blue-500 hover:underline'
+                            onClick={handleDeselect}
+                        >
+                            Deselect
+                        </button>
+                    </div>
+                </h3>
+            </div>
+            <div className='flex-1 overflow-y-auto'>
+                <ul className='divide-y divide-gray-200'>
+                    {songs?.map((song, index) => (
+                        <li
+                            key={index}
+                            className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md ${
+                                selectedSong?.uri === song.uri
+                                    ? 'bg-blue-500 text-white'
+                                    : (repeats.some((r) => r.uri === song.uri) ? 'text-orange-300 font-[400]' : '')
+                            }`}
+                            draggable
+                            ref={(el) => {
+                                if (!songRefs.current[song.uri])
+                                    songRefs.current[song.uri] = []
+                                songRefs.current[song.uri].push(el)
+                            }}
+                            onDragStart={(e) => handleDragStart(e, song)}
+                            onClick={() => setSelectedSong(song)}
+                            data-index={index}
+                        >
+                            {/* Song Index and Name */}
+                            <div className='flex-1 break-words'>
+                                {song.index + 1}. {song.name}
+                            </div>
+
+                            {/* Song Artist */}
+                            <div className='flex-1 break-words'>
+                                {song.artist}
+                            </div>
+
+                            {/* Song Duration */}
+                            <div className='w-16 text-sm text-right'>
+                                {Math.floor(song.duration / 60)}:
+                                {String(Math.floor(song.duration % 60)).padStart(
+                                    2,
+                                    '0'
+                                )}
+                            </div>
+
+                            {/* Delete Button */}
+                            <button
+                                className='ml-4 text-red-500'
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    // Implement delete song logic
+                                }}
+                            >
+                                ⊗
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            </div>
         </div>
     )
 }

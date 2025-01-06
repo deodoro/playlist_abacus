@@ -178,7 +178,7 @@ const Navigator = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 auto-rows-[50%] w-full h-screen overflow-auto">
+      <div className="p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 auto-rows-[50%] w-3/4 h-screen overflow-auto">
         {selectedPlaylists.map((playlist) => (
           <PlaylistDetails
             key={playlist.id}
