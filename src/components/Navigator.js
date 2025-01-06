@@ -271,22 +271,22 @@ const Navigator = () => {
          </div>
 
          {/* Right Panel */}
-         <div className='p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 auto-rows-[50%] w-3/4 h-screen overflow-auto'>
+         <div className={`p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 w-3/4 h-screen overflow-auto ${ selectedPlaylists.length > 3 ? 'auto-rows-[50%]' : 'auto-rows-[100%]'}`}>
             {selectedPlaylists.map((playlist) => (
-               <PlaylistDetails
-                  key={playlist.id}
-                  playlist={playlist}
-                  playlists={playlists}
-                  setPlaylists={setPlaylists}
-                  songs={songs[playlist.id]}
-                  repeats={repeats}
-                  selectedSong={selectedSong}
-                  setSelectedSong={selectSong}
-                  setSongs={setSongs}
-                  songRefs={songRefs}
-                  setSteps={setSteps}
-                  setSelectedPlaylists={setSelectedPlaylists}
-               />
+                <PlaylistDetails
+                    key={playlist.id}
+                    playlist={playlist}
+                    playlists={playlists}
+                    setPlaylists={setPlaylists}
+                    songs={songs[playlist.id]}
+                    repeats={repeats}
+                    selectedSong={selectedSong}
+                    setSelectedSong={selectSong}
+                    setSongs={setSongs}
+                    songRefs={songRefs}
+                    setSteps={setSteps}
+                    setSelectedPlaylists={setSelectedPlaylists}
+                />
             ))}
             <PlaylistActions
                selectedPlaylists={selectedPlaylists}

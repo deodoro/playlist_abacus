@@ -180,125 +180,125 @@ const PlaylistDetails = ({
    }
 
    return (
-      <div
-         className='bg-gray-100 p-4 rounded-md shadow-md h-[50vh] pt-0'
-         onDragOver={(e) => e.preventDefault()}
-        //  onDrop={handleDrop}
-      >
-         <div className='flex flex-col h-full'>
-            <div className=''>
-               <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
-                  {playlist.name}
-                  <span className='text-xs text-gray-400'>
-                     {songs?.length || 0} songs
-                  </span>
-                  <span className='text-xs text-gray-400'>{length} hours</span>
-                  <div className='flex space-x-2 text-xs'>
-                     <button
-                        className='text-green-600 hover:underline'
-                        onClick={cloneList}
-                     >
-                        Clone
-                     </button>
-                     <button
-                        className='text-red-500 hover:underline'
-                        onClick={handleDeleteList}
-                     >
-                        Delete
-                     </button>
-                     <button
-                        className='text-blue-500 hover:underline'
-                        onClick={handleDeselect}
-                     >
-                        Deselect
-                     </button>
-                  </div>
-               </h3>
-            </div>
-            <div className='flex-1 overflow-y-auto'>
-               <ul className='divide-y divide-gray-200'>
-                  {songs?.map((song, index) => (
-                     <React.Fragment key={index}>
-                        <li
-                           className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md relative ${
-                                 selectedSong?.uri === song.uri
-                                 ? 'bg-blue-500 text-white'
-                                 : repeats.some((r) => r.uri === song.uri)
-                                 ? 'text-orange-300 font-[400]'
-                                 : ''
-                           }`}
-                           draggable
-                           ref={(el) => {
-                              if (!songRefs.current[song.uri])
-                                 songRefs.current[song.uri] = []
-                              songRefs.current[song.uri].push(el)
-                           }}
-                           onDragStart={(e) => handleDragStart(e, song)}
-                           onClick={() => setSelectedSong(song)}
-                           data-index={index}
-                           onDragEnter={() => {
-                              setDragOver(song.uri)
-                              setDragInsertPosition(index) // Set insert position
-                           }}
-                           onDragOver={(e) => e.preventDefault()} // Prevent default to allow drop
-                           onDragLeave={() => {
-                              if (dragOver === song.uri) {
-                                 setDragOver('')
-                                 setDragInsertPosition(null) // Reset insert position
-                              }
-                           }}
-                           onDrop={(e) => {
-                              setDragOver('')
-                              setDragInsertPosition(null) // Reset on drop
-                              handleDrop(e)
-                           }}
+    <div className='overflow-hidden relative'>
+        <div
+            className='bg-gray-100 p-4 rounded-md shadow-md h-full pt-0'
+        >
+            <div className='flex flex-col h-full'>
+                <div className=''>
+                <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
+                    {playlist.name}
+                    <span className='text-xs text-gray-400'>
+                        {songs?.length || 0} songs
+                    </span>
+                    <span className='text-xs text-gray-400'>{length} hours</span>
+                    <div className='flex space-x-2 text-xs'>
+                        <button
+                            className='text-green-600 hover:underline'
+                            onClick={cloneList}
                         >
-                           {/* Song Index and Name */}
-                           <div className='flex-1 break-words'>
-                              {song.index + 1}. {song.name}
-                           </div>
-
-                           {/* Song Artist */}
-                           <div className='flex-1 break-words'>
-                              {song.artist}
-                           </div>
-
-                           {/* Song Duration */}
-                           <div className='w-16 text-sm text-right'>
-                              {Math.floor(song.duration / 60)}:
-                              {String(Math.floor(song.duration % 60)).padStart(
-                                 2,
-                                 '0'
-                              )}
-                           </div>
-
-                           {/* Delete Button */}
-                           <button
-                              className='ml-4 text-red-500'
-                              onClick={() => handleDeleteSong(song)}
-                           >
-                              ⊗
-                           </button>
-                           <div className='absolute top-0 left-0 w-full h-full opacity-50'></div>
-                        </li>
-                        {dragInsertPosition === index && (
-                           <div className="w-full my-2 h-6 py-2 mb-4">
-                            <div className="h-6 bg-gray-300 opacity-30 rounded-md"></div>
-                          </div>
-                       )}
-                     </React.Fragment>
-                  ))}
-
-                  {/* Handle placeholder for the end of the list */}
-                  {songs && (dragInsertPosition === songs.length) && (
-                     <div className="h-1 w-full p-1">
-                        <div className="border-t-2 border-dashed border-gray-400 my-2">&nbsp;</div>
+                            Clone
+                        </button>
+                        <button
+                            className='text-red-500 hover:underline'
+                            onClick={handleDeleteList}
+                        >
+                            Delete
+                        </button>
+                        <button
+                            className='text-blue-500 hover:underline'
+                            onClick={handleDeselect}
+                        >
+                            Deselect
+                        </button>
                     </div>
-                  )}
-               </ul>
+                </h3>
+                </div>
+                <div className='flex-1 overflow-y-auto'>
+                <ul className='divide-y divide-gray-200'>
+                    {songs?.map((song, index) => (
+                        <React.Fragment key={index}>
+                            <li
+                            className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md relative ${
+                                    selectedSong?.uri === song.uri
+                                    ? 'bg-blue-500 text-white'
+                                    : repeats.some((r) => r.uri === song.uri)
+                                    ? 'text-orange-300 font-[400]'
+                                    : ''
+                            }`}
+                            draggable
+                            ref={(el) => {
+                                if (!songRefs.current[song.uri])
+                                    songRefs.current[song.uri] = []
+                                songRefs.current[song.uri].push(el)
+                            }}
+                            onDragStart={(e) => handleDragStart(e, song)}
+                            onClick={() => setSelectedSong(song)}
+                            data-index={index}
+                            onDragEnter={() => {
+                                setDragOver(song.uri)
+                                setDragInsertPosition(index) // Set insert position
+                            }}
+                            onDragOver={(e) => e.preventDefault()} // Prevent default to allow drop
+                            onDragLeave={() => {
+                                if (dragOver === song.uri) {
+                                    setDragOver('')
+                                    setDragInsertPosition(null) // Reset insert position
+                                }
+                            }}
+                            onDrop={(e) => {
+                                setDragOver('')
+                                setDragInsertPosition(null) // Reset on drop
+                                handleDrop(e)
+                            }}
+                            >
+                            {/* Song Index and Name */}
+                            <div className='flex-1 break-words'>
+                                {song.index + 1}. {song.name}
+                            </div>
+
+                            {/* Song Artist */}
+                            <div className='flex-1 break-words'>
+                                {song.artist}
+                            </div>
+
+                            {/* Song Duration */}
+                            <div className='w-16 text-sm text-right'>
+                                {Math.floor(song.duration / 60)}:
+                                {String(Math.floor(song.duration % 60)).padStart(
+                                    2,
+                                    '0'
+                                )}
+                            </div>
+
+                            {/* Delete Button */}
+                            <button
+                                className='ml-4 text-red-500'
+                                onClick={() => handleDeleteSong(song)}
+                            >
+                                ⊗
+                            </button>
+                            <div className='absolute top-0 left-0 w-full h-full opacity-50'></div>
+                            </li>
+                            {dragInsertPosition === index && (
+                            <div className="w-full my-2 h-6 py-2 mb-4">
+                                <div className="h-6 bg-gray-300 opacity-30 rounded-md"></div>
+                            </div>
+                        )}
+                        </React.Fragment>
+                    ))}
+
+                    {/* Handle placeholder for the end of the list */}
+                    {songs && (dragInsertPosition === songs.length) && (
+                        <div className="h-1 w-full p-1">
+                            <div className="border-t-2 border-dashed border-gray-400 my-2">&nbsp;</div>
+                        </div>
+                    )}
+                </ul>
+                </div>
             </div>
-         </div>
-      </div>
+        </div>
+    </div>
    )
 }
 
