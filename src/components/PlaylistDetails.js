@@ -232,7 +232,9 @@ const PlaylistDetails = ({
                                     songRefs.current[song.uri] = []
                                 songRefs.current[song.uri].push(el)
                             }}
-                            onDragStart={(e) => handleDragStart(e, song)}
+                            onDragStart={(e) => {
+                                handleDragStart(e, song)
+                            }}
                             onClick={() => setSelectedSong(song)}
                             data-index={index}
                             onDragEnter={() => {
@@ -252,39 +254,39 @@ const PlaylistDetails = ({
                                 handleDrop(e)
                             }}
                             >
-                            {/* Song Index and Name */}
-                            <div className='flex-1 break-words'>
-                                {song.index + 1}. {song.name}
-                            </div>
+                                {/* Song Index and Name */}
+                                <div className='flex-1 break-words'>
+                                    {song.index + 1}. {song.name}
+                                </div>
 
-                            {/* Song Artist */}
-                            <div className='flex-1 break-words'>
-                                {song.artist}
-                            </div>
+                                {/* Song Artist */}
+                                <div className='flex-1 break-words'>
+                                    {song.artist}
+                                </div>
 
-                            {/* Song Duration */}
-                            <div className='w-16 text-sm text-right'>
-                                {Math.floor(song.duration / 60)}:
-                                {String(Math.floor(song.duration % 60)).padStart(
-                                    2,
-                                    '0'
-                                )}
-                            </div>
+                                {/* Song Duration */}
+                                <div className='w-16 text-sm text-right'>
+                                    {Math.floor(song.duration / 60)}:
+                                    {String(Math.floor(song.duration % 60)).padStart(
+                                        2,
+                                        '0'
+                                    )}
+                                </div>
 
-                            {/* Delete Button */}
-                            <button
-                                className='ml-4 text-red-500'
-                                onClick={() => handleDeleteSong(song)}
-                            >
-                                ⊗
-                            </button>
-                            <div className='absolute top-0 left-0 w-full h-full opacity-50'></div>
+                                {/* Delete Button */}
+                                <button
+                                    className='ml-4 text-red-500'
+                                    onClick={() => handleDeleteSong(song)}
+                                >
+                                    ⊗
+                                </button>
+                                <div className='absolute top-0 left-0 w-full h-full opacity-50'></div>
                             </li>
                             {dragInsertPosition === index && (
-                            <div className="w-full my-2 h-6 py-2 mb-4">
-                                <div className="h-6 bg-gray-300 opacity-30 rounded-md"></div>
-                            </div>
-                        )}
+                                <div className="w-full my-2 h-6 py-2 mb-4">
+                                    <div className="h-6 bg-gray-300 opacity-30 rounded-md"></div>
+                                </div>
+                            )}
                         </React.Fragment>
                     ))}
 

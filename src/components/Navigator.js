@@ -14,6 +14,7 @@ import {
    moveTrackInPlaylist,
 } from '../utils/api'
 import Operations from '../utils/operations'
+import SavePanel from './SavePanel'
 
 const Navigator = () => {
    const {
@@ -241,32 +242,12 @@ const Navigator = () => {
             </div>
 
             {isDirty() && (
-               <div className='p-4 bg-white shadow-md rounded-md fixed bottom-0'>
-                  <h3 className='text-lg font-semibold'>
-                     {steps.length} change{steps.length > 1 ? 's' : ''} to be
-                     applied
-                  </h3>
-                  <div className='flex justify-between mt-2'>
-                     <button
-                        className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
-                        onClick={applyChanges}
-                     >
-                        Apply
-                     </button>
-                     <button
-                        className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600'
-                        onClick={revertChanges}
-                     >
-                        Revert
-                     </button>
-                     <button
-                        className='bg-purple-500 text-white px-4 py-2 rounded hover:bg-red-600'
-                        onClick={undoLastChange}
-                     >
-                        Undo Last Operation
-                     </button>
-                  </div>
-               </div>
+                <SavePanel
+                    steps={steps}
+                    applyChanges={applyChanges}
+                    revertChanges={revertChanges}
+                    undoLastChange={undoLastChange}
+                />
             )}
          </div>
 
