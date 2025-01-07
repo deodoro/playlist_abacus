@@ -152,3 +152,97 @@ export const removeSongFromPlaylist = async (playlistId, songUri) => {
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     return await response.json();
 };
+
+export const playSong = async (songUri, activeDeviceId) => {
+    const token = await getToken();
+
+    if (!activeDeviceId) {
+      throw new Error("No active device selected");
+    }
+
+    const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${activeDeviceId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uris: [songUri],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to play song: ${response.status}`);
+    }
+
+    return "Song is playing";
+  };
+
+// Fetch user profile from Spotify
+export const getUserProfile = async () => {
+  const token = await getToken();
+  const response = await fetch("https://api.spotify.com/v1/me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return {
+    name: data.display_name,
+    email: data.email,
+    picture: data.images.length > 0 ? data.images[0].url : null,
+  };
+};
+
+// Fetch available devices and active device from Spotify
+export const getAvailableDevices = async () => {
+  const token = await getToken();
+  const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch devices: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const activeDevice = data.devices.find((device) => device.is_active);
+
+  return {
+    devices: data.devices.map((device) => ({
+      id: device.id,
+      name: device.name,
+    })),
+    activeDeviceId: activeDevice ? activeDevice.id : "",
+  };
+};
+
+// Set the active device on Spotify
+export const setActiveDevice = async (deviceId) => {
+  const token = await getToken();
+  const response = await fetch("https://api.spotify.com/v1/me/player", {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      device_ids: [deviceId], // Array of device IDs to set as active
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to set active device: ${response.status}`);
+  }
+
+  return "Active device set successfully";
+};

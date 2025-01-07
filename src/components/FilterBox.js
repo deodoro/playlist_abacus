@@ -8,7 +8,7 @@ const FilterBox = ({ filterText, setFilterText }) => (
         placeholder="Filter..."
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
-        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       {filterText && (
         <button

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Operations from '../utils/operations'
+import { playSong } from '../utils/api'
+import { useDevice } from '../context/DeviceContext'
 
 const PlaylistDetails = ({
    playlist,
-   playlists,
    setPlaylists,
    songs,
    repeats,
@@ -16,8 +17,9 @@ const PlaylistDetails = ({
    setSelectedPlaylists,
 }) => {
    const [length, setLength] = useState('0:00')
-   const [dragOver, setDragOver] = useState('');
-   const [dragInsertPosition, setDragInsertPosition] = useState(null); // New state to track insert position
+   const [dragOver, setDragOver] = useState('')
+   const [dragInsertPosition, setDragInsertPosition] = useState(null)
+   const { activeDeviceId } = useDevice();
 
    useEffect(() => {
       if (songs) {
@@ -39,8 +41,7 @@ const PlaylistDetails = ({
       const song = JSON.parse(e.dataTransfer.getData('song'))
       const sourceIndex = song.index
       const origPlaylistId = e.dataTransfer.getData('playlist')
-      const targetSongIndex =
-         e.target.parentElement.dataset.index
+      const targetSongIndex = e.target.parentElement.dataset.index
       const targetIndex =
          targetSongIndex !== undefined
             ? parseInt(targetSongIndex, 10)
@@ -79,7 +80,10 @@ const PlaylistDetails = ({
                   playlistId: playlist.id,
                   song,
                   fromIndex: sourceIndex,
-                  toIndex: sourceIndex < targetIndex ? targetIndex + 1 : targetIndex + 2,
+                  toIndex:
+                     sourceIndex < targetIndex
+                        ? targetIndex + 1
+                        : targetIndex + 2,
                   tId: transactionId,
                },
             ]
@@ -89,17 +93,25 @@ const PlaylistDetails = ({
       setSongs((prevSongs) => {
          const updatedSongs = { ...prevSongs }
          const updateIndexes = (list, start) => {
-            const newItems = list.slice(start).map((i, index) => { return { ...i, index: start + index } })
+            const newItems = list.slice(start).map((i, index) => {
+               return { ...i, index: start + index }
+            })
             return list.slice(0, start).concat(newItems)
          }
 
          if (origPlaylistId === 'master' || playlist.id !== origPlaylistId) {
             const newIndex = targetIndex + 1
             updatedSongs[playlist.id].splice(newIndex, 0, song)
-            updatedSongs[playlist.id] = updateIndexes(updatedSongs[playlist.id], newIndex)
+            updatedSongs[playlist.id] = updateIndexes(
+               updatedSongs[playlist.id],
+               newIndex
+            )
             if (isMove) {
                updatedSongs[origPlaylistId].splice(sourceIndex, 1)
-               updatedSongs[origPlaylistId] = updateIndexes(updatedSongs[origPlaylistId], sourceIndex)
+               updatedSongs[origPlaylistId] = updateIndexes(
+                  updatedSongs[origPlaylistId],
+                  sourceIndex
+               )
             }
          } else {
             const newIndex =
@@ -179,128 +191,141 @@ const PlaylistDetails = ({
       setSelectedPlaylists((prev) => prev.filter((p) => p.id !== playlist.id))
    }
 
+   const handlePlaySong = (song) => {
+      playSong(song.uri, activeDeviceId)
+   }
+
    return (
-    <div className='overflow-hidden relative'>
-        <div
-            className='bg-gray-100 p-4 rounded-md shadow-md h-full pt-0'
-        >
+      <div className='overflow-hidden relative'>
+         <div className='bg-gray-100 p-4 rounded-md shadow-md h-full pt-0'>
             <div className='flex flex-col h-full'>
-                <div className=''>
-                <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
-                    {playlist.name}
-                    <span className='text-xs text-gray-400'>
+               <div className=''>
+                  <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
+                     {playlist.name}
+                     <span className='text-xs text-gray-400'>
                         {songs?.length || 0} songs
-                    </span>
-                    <span className='text-xs text-gray-400'>{length} hours</span>
-                    <div className='flex space-x-2 text-xs'>
+                     </span>
+                     <span className='text-xs text-gray-400'>
+                        {length} hours
+                     </span>
+                     <div className='flex space-x-2 text-xs'>
                         <button
-                            className='text-green-600 hover:underline'
-                            onClick={cloneList}
+                           className='text-green-600 hover:underline'
+                           onClick={cloneList}
                         >
-                            Clone
+                           Clone
                         </button>
                         <button
-                            className='text-red-500 hover:underline'
-                            onClick={handleDeleteList}
+                           className='text-red-500 hover:underline'
+                           onClick={handleDeleteList}
                         >
-                            Delete
+                           Delete
                         </button>
                         <button
-                            className='text-blue-500 hover:underline'
-                            onClick={handleDeselect}
+                           className='text-blue-500 hover:underline'
+                           onClick={handleDeselect}
                         >
-                            Deselect
+                           Deselect
                         </button>
-                    </div>
-                </h3>
-                </div>
-                <div className='flex-1 overflow-y-auto'>
-                <ul className='divide-y divide-gray-200'>
-                    {songs?.map((song, index) => (
+                     </div>
+                  </h3>
+               </div>
+               <div className='flex-1 overflow-y-auto'>
+                  <ul className='divide-y divide-gray-200'>
+                     {songs?.map((song, index) => (
                         <React.Fragment key={index}>
-                            <li
-                            className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md relative ${
-                                    selectedSong?.uri === song.uri
+                           <li
+                              className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md relative ${
+                                 selectedSong?.uri === song.uri
                                     ? 'bg-blue-500 text-white'
                                     : repeats.some((r) => r.uri === song.uri)
                                     ? 'text-orange-300 font-[400]'
                                     : ''
-                            }`}
-                            draggable
-                            ref={(el) => {
-                                if (!songRefs.current[song.uri])
+                              }`}
+                              draggable
+                              ref={(el) => {
+                                 if (!songRefs.current[song.uri])
                                     songRefs.current[song.uri] = []
-                                songRefs.current[song.uri].push(el)
-                            }}
-                            onDragStart={(e) => {
-                                handleDragStart(e, song)
-                            }}
-                            onClick={() => setSelectedSong(song)}
-                            data-index={index}
-                            onDragEnter={() => {
-                                setDragOver(song.uri)
-                                setDragInsertPosition(index) // Set insert position
-                            }}
-                            onDragOver={(e) => e.preventDefault()} // Prevent default to allow drop
-                            onDragLeave={() => {
-                                if (dragOver === song.uri) {
+                                 songRefs.current[song.uri].push(el)
+                              }}
+                              onDragStart={(e) => {
+                                 handleDragStart(e, song)
+                              }}
+                              onClick={() => setSelectedSong(song)}
+                              onDoubleClick={() => handlePlaySong(song)}
+                              data-index={index}
+                              onDragEnter={() => {
+                                 setDragOver(song.uri)
+                                 setDragInsertPosition(index) // Set insert position
+                              }}
+                              onDragOver={(e) => e.preventDefault()} // Prevent default to allow drop
+                              onDragLeave={() => {
+                                 if (dragOver === song.uri) {
                                     setDragOver('')
                                     setDragInsertPosition(null) // Reset insert position
-                                }
-                            }}
-                            onDrop={(e) => {
-                                setDragOver('')
-                                setDragInsertPosition(null) // Reset on drop
-                                handleDrop(e)
-                            }}
-                            >
-                                {/* Song Index and Name */}
-                                <div className='flex-1 break-words'>
-                                    {song.index + 1}. {song.name}
-                                </div>
+                                 }
+                              }}
+                              onDrop={(e) => {
+                                 setDragOver('')
+                                 setDragInsertPosition(null) // Reset on drop
+                                 handleDrop(e)
+                              }}
+                           >
 
-                                {/* Song Artist */}
-                                <div className='flex-1 break-words'>
-                                    {song.artist}
-                                </div>
 
-                                {/* Song Duration */}
-                                <div className='w-16 text-sm text-right'>
-                                    {Math.floor(song.duration / 60)}:
-                                    {String(Math.floor(song.duration % 60)).padStart(
-                                        2,
-                                        '0'
-                                    )}
-                                </div>
+                              {/* Song Index and Name */}
+                              <div className='flex-1 break-words'>
+                                 {song.index + 1}. {song.name}
+                              </div>
 
-                                {/* Delete Button */}
-                                <button
-                                    className='ml-4 text-red-500'
-                                    onClick={() => handleDeleteSong(song)}
-                                >
-                                    ⊗
-                                </button>
-                                <div className='absolute top-0 left-0 w-full h-full opacity-50'></div>
-                            </li>
-                            {dragInsertPosition === index && (
-                                <div className="w-full my-2 h-6 py-2 mb-4">
-                                    <div className="h-6 bg-gray-300 opacity-30 rounded-md"></div>
-                                </div>
-                            )}
+                              {/* Song Artist */}
+                              <div className='flex-1 break-words'>
+                                 {song.artist}
+                              </div>
+
+                              {/* Song Duration */}
+                              <div className='w-16 text-sm text-right'>
+                                 {Math.floor(song.duration / 60)}:
+                                 {String(
+                                    Math.floor(song.duration % 60)
+                                 ).padStart(2, '0')}
+                              </div>
+
+                              {/* Delete Button */}
+                              <button
+                                 className='ml-4 text-red-500'
+                                 onClick={(e) => {
+                                    e.stopPropagation() // Prevent triggering setSelectedSong
+                                    handleDeleteSong(song)
+                                 }}
+                              >
+                                 ⊗
+                              </button>
+                              <div className='absolute top-0 left-0 w-full h-full opacity-50 z-50'></div>
+                           </li>
+
+                           {/* Drag Insert Indicator */}
+                           {dragInsertPosition === index && (
+                              <div className='w-full my-2 h-6 py-2 mb-4'>
+                                 <div className='h-6 bg-gray-300 opacity-30 rounded-md'></div>
+                              </div>
+                           )}
                         </React.Fragment>
-                    ))}
+                     ))}
 
-                    {/* Handle placeholder for the end of the list */}
-                    {songs && (dragInsertPosition === songs.length) && (
-                        <div className="h-1 w-full p-1">
-                            <div className="border-t-2 border-dashed border-gray-400 my-2">&nbsp;</div>
+                     {/* Handle placeholder for the end of the list */}
+                     {songs && dragInsertPosition === songs.length && (
+                        <div className='h-1 w-full p-1'>
+                           <div className='border-t-2 border-dashed border-gray-400 my-2'>
+                              &nbsp;
+                           </div>
                         </div>
-                    )}
-                </ul>
-                </div>
+                     )}
+                  </ul>
+               </div>
             </div>
-        </div>
-    </div>
+         </div>
+      </div>
    )
 }
 
