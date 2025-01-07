@@ -9,7 +9,7 @@ import { useDevice } from "../context/DeviceContext";
 const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists, filterText, setFilterText }) => {
   const [isUserPopupVisible, setIsUserPopupVisible] = useState(false);
   const [user, setUser] = useState(null);
-  const {activeDeviceId, setActiveDeviceId} = useDevice();
+  const {_, setActiveDeviceId} = useDevice();
 
   useEffect(() => {
     const loadData = async () => {
@@ -29,14 +29,6 @@ const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection
 
   const handleAvatarClick = () => {
     setIsUserPopupVisible((prev) => !prev); // Toggle popup visibility
-  };
-
-  const handleLogOff = () => {
-    console.log("Log off clicked"); // Placeholder for log off action
-  };
-
-  const handleDeviceChange = (e) => {
-    console.log("Selected device:", e.target.value); // Placeholder for device change action
   };
 
   return (

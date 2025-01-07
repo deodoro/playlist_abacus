@@ -76,4 +76,8 @@ const UserDeviceSelector = () => {
   );
 };
 
+UserDeviceSelector.propTypes = {
+  onDeviceChange: PropTypes.func,
+};
+
 export default UserDeviceSelector;
