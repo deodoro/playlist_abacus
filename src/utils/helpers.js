@@ -29,3 +29,20 @@ export const deduplicate = (songs) => {
     }
     return repeatsList;
   };
+
+  export const createDragImage = (song) => {
+    const dragImage = document.createElement('div');
+    dragImage.textContent = `${song.index + 1}. ${song.name}`;
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '0';
+    dragImage.style.left = '0';
+    dragImage.style.padding = '8px 12px';
+    dragImage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    dragImage.style.color = 'white';
+    dragImage.style.borderRadius = '4px';
+    dragImage.style.pointerEvents = 'none'; // Prevent interactions
+    dragImage.style.zIndex = '9999';
+
+    document.body.appendChild(dragImage);
+    return dragImage;
+ };

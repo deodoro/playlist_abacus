@@ -90,6 +90,13 @@ const Navigator = () => {
             case Operations.OP_INSERT: {
                const { song, playlistId, index } = step
                console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
+               await addSongsToPlaylist(playlistId, [song.uri])
+               if (songs[playlistId].length > 1)
+                  await moveTrackInPlaylist(
+                     playlistId,
+                     songs[playlistId].length - 1,
+                     index + 1
+                  )
                break
             }
             case Operations.OP_REMOVE: {
@@ -140,71 +147,78 @@ const Navigator = () => {
    }
 
    const undoLastChange = () => {
-    if (steps.length > 0) {
-        const tId = steps[steps.length - 1].tId
-        const stepsToUndo = []
+      if (steps.length > 0) {
+         const tId = steps[steps.length - 1].tId
+         const stepsToUndo = []
 
-        // Collect steps for the current transaction
-        for (let i = steps.length - 1; i >= 0 && steps[i].tId === tId; i--) {
-           stepsToUndo.unshift(steps.pop())
-        }
+         // Collect steps for the current transaction
+         for (let i = steps.length - 1; i >= 0 && steps[i].tId === tId; i--) {
+            stepsToUndo.unshift(steps.pop())
+         }
 
-        setSongs((prevSongs) => {
-           const updatedSongs = { ...prevSongs }
+         setSongs((prevSongs) => {
+            const updatedSongs = { ...prevSongs }
 
-           stepsToUndo.forEach((step) => {
-              switch (step.op) {
-                 case Operations.OP_INSERT:
-                    updatedSongs[step.playlistId].splice(step.index+1, 1)
-                    reindexSongs(updatedSongs[step.playlistId])
-                    break
+            stepsToUndo.forEach((step) => {
+               switch (step.op) {
+                  case Operations.OP_INSERT:
+                     updatedSongs[step.playlistId].splice(step.index + 1, 1)
+                     reindexSongs(updatedSongs[step.playlistId])
+                     break
 
-                 case Operations.OP_REMOVE:
-                    updatedSongs[step.playlistId].splice(step.index, 0, step.song)
-                    reindexSongs(updatedSongs[step.playlistId])
-                    break
+                  case Operations.OP_REMOVE:
+                     updatedSongs[step.playlistId].splice(
+                        step.index,
+                        0,
+                        step.song
+                     )
+                     reindexSongs(updatedSongs[step.playlistId])
+                     break
 
-                 case Operations.OP_MOVE: {
-                    const movedSongs = [...updatedSongs[step.playlistId]]
-                    const [movedSong] = movedSongs.splice(step.toIndex-1, 1)
-                    movedSongs.splice(step.fromIndex, 0, movedSong)
-                    reindexSongs(movedSongs)
-                    updatedSongs[step.playlistId] = movedSongs
-                 }
-                    break
+                  case Operations.OP_MOVE:
+                     {
+                        const movedSongs = [...updatedSongs[step.playlistId]]
+                        const [movedSong] = movedSongs.splice(
+                           step.toIndex - 1,
+                           1
+                        )
+                        movedSongs.splice(step.fromIndex, 0, movedSong)
+                        reindexSongs(movedSongs)
+                        updatedSongs[step.playlistId] = movedSongs
+                     }
+                     break
 
-                 default:
-                    break
-              }
-           })
+                  default:
+                     break
+               }
+            })
 
-           return updatedSongs
-        })
+            return updatedSongs
+         })
 
-        setPlaylists((prevPlaylists) => {
-           let updatedPlaylists = [...prevPlaylists]
+         setPlaylists((prevPlaylists) => {
+            let updatedPlaylists = [...prevPlaylists]
 
-           stepsToUndo.forEach((step) => {
-              switch (step.op) {
-                 case Operations.OP_NEW_PLAYLIST:
-                    updatedPlaylists = updatedPlaylists.filter(
-                       (p) => p.id !== step.playlist.id
-                    )
-                    break
+            stepsToUndo.forEach((step) => {
+               switch (step.op) {
+                  case Operations.OP_NEW_PLAYLIST:
+                     updatedPlaylists = updatedPlaylists.filter(
+                        (p) => p.id !== step.playlist.id
+                     )
+                     break
 
-                 case Operations.OP_DELETE_PLAYLIST:
-                    updatedPlaylists.push(step.playlist)
-                    break
+                  case Operations.OP_DELETE_PLAYLIST:
+                     updatedPlaylists.push(step.playlist)
+                     break
 
-                 default:
-                    break
-              }
-           })
+                  default:
+                     break
+               }
+            })
 
-           return updatedPlaylists
-        })
-
-    }
+            return updatedPlaylists
+         })
+      }
    }
 
    const reindexSongs = (playlistSongs) => {
@@ -242,32 +256,38 @@ const Navigator = () => {
             </div>
 
             {isDirty() && (
-                <SavePanel
-                    steps={steps}
-                    applyChanges={applyChanges}
-                    revertChanges={revertChanges}
-                    undoLastChange={undoLastChange}
-                />
+               <SavePanel
+                  steps={steps}
+                  applyChanges={applyChanges}
+                  revertChanges={revertChanges}
+                  undoLastChange={undoLastChange}
+               />
             )}
          </div>
 
          {/* Right Panel */}
-         <div className={`p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 w-3/4 h-screen overflow-auto ${ selectedPlaylists.length > 3 ? 'auto-rows-[50%]' : 'auto-rows-[100%]'}`}>
+         <div
+            className={`p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 w-3/4 h-screen overflow-auto ${
+               selectedPlaylists.length > 3
+                  ? 'auto-rows-[50%]'
+                  : 'auto-rows-[100%]'
+            }`}
+         >
             {selectedPlaylists.map((playlist) => (
-                <PlaylistDetails
-                    key={playlist.id}
-                    playlist={playlist}
-                    playlists={playlists}
-                    setPlaylists={setPlaylists}
-                    songs={songs[playlist.id]}
-                    repeats={repeats}
-                    selectedSong={selectedSong}
-                    setSelectedSong={selectSong}
-                    setSongs={setSongs}
-                    songRefs={songRefs}
-                    setSteps={setSteps}
-                    setSelectedPlaylists={setSelectedPlaylists}
-                />
+               <PlaylistDetails
+                  key={playlist.id}
+                  playlist={playlist}
+                  playlists={playlists}
+                  setPlaylists={setPlaylists}
+                  songs={songs[playlist.id]}
+                  repeats={repeats}
+                  selectedSong={selectedSong}
+                  setSelectedSong={selectSong}
+                  setSongs={setSongs}
+                  songRefs={songRefs}
+                  setSteps={setSteps}
+                  setSelectedPlaylists={setSelectedPlaylists}
+               />
             ))}
             <PlaylistActions
                selectedPlaylists={selectedPlaylists}

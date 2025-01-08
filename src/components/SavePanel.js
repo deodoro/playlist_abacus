@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 const SavePanel = ({steps, applyChanges, revertChanges, undoLastChange}) => {
 
     return (
-    <div className='p-4 bg-grey-900 sticky bottom-0'>
+    <div className='p-4 bg-gray-900 sticky bottom-0'>
     <h3 className='text-lg font-semibold text-white'>
        {steps.length} change{steps.length > 1 ? 's' : ''} to be
        applied

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Operations from '../utils/operations'
 import { playSong } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
+import { createDragImage } from '../utils/helpers'
+import SongDetailItem from './SongDetailItem'
 
 const PlaylistDetails = ({
    playlist,
@@ -19,7 +21,7 @@ const PlaylistDetails = ({
    const [length, setLength] = useState('0:00')
    const [dragOver, setDragOver] = useState('')
    const [dragInsertPosition, setDragInsertPosition] = useState(null)
-   const { activeDeviceId } = useDevice();
+   const { activeDeviceId } = useDevice()
 
    useEffect(() => {
       if (songs) {
@@ -33,22 +35,38 @@ const PlaylistDetails = ({
    }, [songs])
 
    const handleDragStart = (e, song) => {
+      const dragImage = createDragImage(song)
       e.dataTransfer.setData('song', JSON.stringify(song))
       e.dataTransfer.setData('playlist', playlist.id)
+      e.dataTransfer.setDragImage(dragImage, 10, 10)
+
+      // Clean up after drag ends
+      e.target.addEventListener('dragend', () => {
+        try {
+            document.body.removeChild(dragImage)
+        }
+        catch (e) {
+            console.error('Error removing drag image:', e)
+        }
+      })
    }
 
    const handleDrop = (e) => {
       const song = JSON.parse(e.dataTransfer.getData('song'))
       const sourceIndex = song.index
       const origPlaylistId = e.dataTransfer.getData('playlist')
-      const targetSongIndex = e.target.parentElement.dataset.index
+      const targetSongIndex = e.target.closest('li')?.dataset.index
       const targetIndex =
          targetSongIndex !== undefined
             ? parseInt(targetSongIndex, 10)
-            : songs[playlist.id].length
+            : songs[playlist.id]
+            ? songs[playlist.id].length
+            : 0
       const isMove = origPlaylistId !== 'master' && e.shiftKey
       const transactionId = String(Date.now())
 
+      setDragOver('')
+      setDragInsertPosition(null)
       setSteps((prevSteps) => {
          const insertOp = {
             op: Operations.OP_INSERT,
@@ -231,80 +249,30 @@ const PlaylistDetails = ({
                   </h3>
                </div>
                <div className='flex-1 overflow-y-auto'>
-                  <ul className='divide-y divide-gray-200'>
+                  <ul
+                     className='divide-y divide-gray-200 h-full'
+                     onDragOver={(e) => {
+                        setDragInsertPosition(
+                           parseInt(e.target.closest('li')?.dataset.index)
+                        )
+                        e.preventDefault()
+                     }} // Allow drop anywhere on UL
+                     onDragLeave={() => setDragInsertPosition(null) }
+                     onDrop={handleDrop} // Handle drop at UL level
+                  >
                      {songs?.map((song, index) => (
                         <React.Fragment key={index}>
-                           <li
-                              className={`song-detail-item text-gray-600 flex items-center p-2 rounded-md relative ${
-                                 selectedSong?.uri === song.uri
-                                    ? 'bg-blue-500 text-white'
-                                    : repeats.some((r) => r.uri === song.uri)
-                                    ? 'text-orange-300 font-[400]'
-                                    : ''
-                              }`}
-                              draggable
-                              ref={(el) => {
-                                 if (!songRefs.current[song.uri])
-                                    songRefs.current[song.uri] = []
-                                 songRefs.current[song.uri].push(el)
-                              }}
-                              onDragStart={(e) => {
-                                 handleDragStart(e, song)
-                              }}
-                              onClick={() => setSelectedSong(song)}
-                              onDoubleClick={() => handlePlaySong(song)}
-                              data-index={index}
-                              onDragEnter={() => {
-                                 setDragOver(song.uri)
-                                 setDragInsertPosition(index) // Set insert position
-                              }}
-                              onDragOver={(e) => e.preventDefault()} // Prevent default to allow drop
-                              onDragLeave={() => {
-                                 if (dragOver === song.uri) {
-                                    setDragOver('')
-                                    setDragInsertPosition(null) // Reset insert position
-                                 }
-                              }}
-                              onDrop={(e) => {
-                                 setDragOver('')
-                                 setDragInsertPosition(null) // Reset on drop
-                                 handleDrop(e)
-                              }}
-                           >
-
-
-                              {/* Song Index and Name */}
-                              <div className='flex-1 break-words'>
-                                 {song.index + 1}. {song.name}
-                              </div>
-
-                              {/* Song Artist */}
-                              <div className='flex-1 break-words'>
-                                 {song.artist}
-                              </div>
-
-                              {/* Song Duration */}
-                              <div className='w-16 text-sm text-right'>
-                                 {Math.floor(song.duration / 60)}:
-                                 {String(
-                                    Math.floor(song.duration % 60)
-                                 ).padStart(2, '0')}
-                              </div>
-
-                              {/* Delete Button */}
-                              <button
-                                 className='ml-4 text-red-500'
-                                 onClick={(e) => {
-                                    e.stopPropagation() // Prevent triggering setSelectedSong
-                                    handleDeleteSong(song)
-                                 }}
-                              >
-                                 ⊗
-                              </button>
-                              <div className='absolute top-0 left-0 w-full h-full opacity-50 z-50'></div>
-                           </li>
-
-                           {/* Drag Insert Indicator */}
+                           <SongDetailItem
+                              song={song}
+                              index={index}
+                              selectedSong={selectedSong}
+                              repeats={repeats}
+                              songRefs={songRefs}
+                              handleDragStart={handleDragStart}
+                              setSelectedSong={setSelectedSong}
+                              handlePlaySong={handlePlaySong}
+                              handleDeleteSong={handleDeleteSong}
+                           />
                            {dragInsertPosition === index && (
                               <div className='w-full my-2 h-6 py-2 mb-4'>
                                  <div className='h-6 bg-gray-300 opacity-30 rounded-md'></div>
