@@ -19,6 +19,7 @@ const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection
         setUser(profile);
 
         const deviceData = await getAvailableDevices();
+        console.log("Active device ID:", deviceData.activeDeviceId);
         setActiveDeviceId(deviceData.activeDeviceId);
       } catch (error) {
         console.error("Failed to load user or devices:", error);

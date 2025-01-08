@@ -246,3 +246,31 @@ export const setActiveDevice = async (deviceId) => {
 
   return "Active device set successfully";
 };
+
+export const pollSpotifyState = async () => {
+    const token = await getToken();
+    const response = await fetch("https://api.spotify.com/v1/me/player", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        if (response.status === 204) {
+            // No content means nothing is playing
+            return { uri: null, position: null };
+        }
+        throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data && data.is_playing && data.item) {
+        return {
+            uri: data.item.uri,
+            position: data.progress_ms,
+        };
+    }
+
+    return { uri: null, position: null };
+};

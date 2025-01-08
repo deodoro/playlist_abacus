@@ -17,6 +17,7 @@ const UserDeviceSelector = () => {
         const deviceData = await getAvailableDevices();
         setDevices(deviceData.devices);
         setActiveDeviceId(deviceData.activeDeviceId);
+        console.log("Active device ID:", deviceData.activeDeviceId);
       } catch (error) {
         console.error("Failed to load user or devices:", error);
       }
@@ -28,6 +29,7 @@ const UserDeviceSelector = () => {
   const handleDeviceChange = async (e) => {
     const newDeviceId = e.target.value;
     setActiveDeviceId(newDeviceId);
+    console.log("Active device ID:",newDeviceId);
     try {
       await setActiveDevice(newDeviceId);
     } catch (error) {

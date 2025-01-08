@@ -255,6 +255,7 @@ const Navigator = () => {
                   selectSong={selectSong}
                   repeats={repeats}
                   songRefs={songRefs}
+                  setSongs={setSongs}
                />
             </div>
 

@@ -8,6 +8,7 @@ const SongsSection = ({
   selectSong,
   repeats,
   songRefs,
+  setSongs,
 }) => {
   return (
     <div className="flex flex-col h-full">
@@ -28,6 +29,7 @@ const SongsSection = ({
           selectSong={selectSong}
           repeats={repeats}
           songRefs={songRefs}
+          setSongs={setSongs}
         />
       </div>
     </div>
@@ -40,6 +42,7 @@ SongsSection.propTypes = {
   selectSong: PropTypes.func.isRequired,
   repeats: PropTypes.array.isRequired,
   songRefs: PropTypes.object.isRequired,
+  setSongs: PropTypes.func.isRequired,
 };
 
 export default SongsSection;

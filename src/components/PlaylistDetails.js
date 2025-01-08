@@ -19,7 +19,7 @@ const PlaylistDetails = ({
    setSelectedPlaylists,
 }) => {
    const [length, setLength] = useState('0:00')
-   const [dragOver, setDragOver] = useState('')
+   const [_, setDragOver] = useState('')
    const [dragInsertPosition, setDragInsertPosition] = useState(null)
    const { activeDeviceId } = useDevice()
 
