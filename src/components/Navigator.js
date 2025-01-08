@@ -121,7 +121,8 @@ const Navigator = () => {
             case Operations.OP_NEW_PLAYLIST: {
                const { playlist, uris } = step
                const newPlaylist = await createPlaylist(playlist.name)
-               await addSongsToPlaylist(newPlaylist.id, uris)
+               if (uris.length > 0)
+                  await addSongsToPlaylist(newPlaylist.id, uris)
                break
             }
          }
@@ -241,6 +242,8 @@ const Navigator = () => {
                   deselectAllPlaylists={() => setSelectedPlaylists([])}
                   filterText={filterText}
                   setFilterText={setFilterText}
+                  setPlaylists={setPlaylists}
+                  setSteps={setSteps}
                />
             </div>
 

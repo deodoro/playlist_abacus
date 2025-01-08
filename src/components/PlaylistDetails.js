@@ -61,7 +61,7 @@ const PlaylistDetails = ({
             ? parseInt(targetSongIndex, 10)
             : songs[playlist.id]
             ? songs[playlist.id].length
-            : 0
+            : -1
       const isMove = origPlaylistId !== 'master' && e.shiftKey
       const transactionId = String(Date.now())
 

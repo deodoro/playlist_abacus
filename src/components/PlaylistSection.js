@@ -5,8 +5,9 @@ import FilterBox from "./FilterBox";
 import UserDeviceSelector from "./UserDeviceSelector";
 import { getUserProfile, getAvailableDevices } from "../utils/api";
 import { useDevice } from "../context/DeviceContext";
+import Operations from "../utils/operations";
 
-const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists, filterText, setFilterText }) => {
+const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection, deselectAllPlaylists, filterText, setFilterText, setPlaylists, setSteps }) => {
   const [isUserPopupVisible, setIsUserPopupVisible] = useState(false);
   const [user, setUser] = useState(null);
   const {_, setActiveDeviceId} = useDevice();
@@ -30,6 +31,23 @@ const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection
   const handleAvatarClick = () => {
     setIsUserPopupVisible((prev) => !prev); // Toggle popup visibility
   };
+
+  const newPlaylist = () => {
+    const newPlaylistName = prompt('Enter the new playlist name:')
+    if (!newPlaylistName) return
+
+    const newPlaylist = { id: `${Date.now()}`, name: newPlaylistName }
+    setPlaylists((prev) => [...prev, newPlaylist])
+    setSteps((prev) => [
+       ...prev,
+       {
+          op: Operations.OP_NEW_PLAYLIST,
+          playlist: newPlaylist,
+          uris: [],
+          tId: String(Date.now()),
+       },
+    ])
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -61,17 +79,25 @@ const PlaylistSection = ({ playlists, selectedPlaylists, togglePlaylistSelection
         <div className="sticky top-0 z-10 bg-gray-100 pb-2">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-gray-800">Playlists</h3>
-            <button
-              className={`px-4 py-2 rounded-md text-xs font-medium ${
-                selectedPlaylists.length === 0
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-              onClick={deselectAllPlaylists}
-              disabled={selectedPlaylists.length === 0}
-            >
-              Deselect All
-            </button>
+            <div className="flex space-x-2 font-semibold text-xs">
+                <button
+                className="text-green-600 hover:underline"
+                onClick={newPlaylist}
+                >
+                New Playlist
+                </button>
+                <button
+                className={`${
+                    selectedPlaylists.length === 0
+                    ? "text-gray-600 cursor-not-allowed"
+                    : "text-blue-600 hover:underline"
+                }`}
+                onClick={deselectAllPlaylists}
+                disabled={selectedPlaylists.length === 0}
+                >
+                Deselect All
+                </button>
+            </div>
           </div>
         </div>
       </div>
@@ -95,6 +121,8 @@ PlaylistSection.propTypes = {
   deselectAllPlaylists: PropTypes.func.isRequired,
   filterText: PropTypes.string.isRequired,
   setFilterText: PropTypes.func.isRequired,
+  setPlaylists: PropTypes.func.isRequired,
+  setSteps: PropTypes.func.isRequired,
 };
 
 export default PlaylistSection;
