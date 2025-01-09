@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import Operations from '../utils/operations'
 import { playSong } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
-import { createDragImage } from '../utils/helpers'
+import { createDragImage, updatePlayingStatus } from '../utils/helpers'
 import SongDetailItem from './SongDetailItem'
 
 const PlaylistDetails = ({
@@ -211,6 +211,7 @@ const PlaylistDetails = ({
 
    const handlePlaySong = (song) => {
       playSong(song.uri, activeDeviceId)
+      setSongs((prev) => updatePlayingStatus(prev, song.uri))
    }
 
    return (

@@ -52,7 +52,7 @@ const PlaylistActions = ({
         setPlaylists((prev) => [...prev, newPlaylist])
         setSongs((prev) => {
             const updatedSongs = { ...prev }
-            updatedSongs[newPlaylist.id] = affectedSongs
+            updatedSongs[newPlaylist.id] = affectedSongs.sort((a, b) => a.index - b.index)
             return updatedSongs
         })
         setSteps((prev) => [
@@ -60,7 +60,7 @@ const PlaylistActions = ({
             {
                 op: Operations.OP_NEW_PLAYLIST,
                 playlist: newPlaylist,
-                uris: affectedSongs.map((song) => song.uri),
+                uris: affectedSongs.sort((a, b) => a.index - b.index).map((song) => song.uri),
                 tId: String(Date.now()),
             },
         ])

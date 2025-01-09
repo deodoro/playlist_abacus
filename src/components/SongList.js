@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { playSong } from '../utils/api'
+import { playSong, pollSpotifyState } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
-import { pollSpotifyState } from '../utils/api' // Assuming pollSpotifyState is already defined
+import { updatePlayingStatus } from '../utils/helpers'
 
 const SongList = ({
    songs,
@@ -52,18 +52,7 @@ const SongList = ({
 
    const handlePlayClick = (song_uri) => {
       setSongs((prev) => updatePlayingStatus(prev, song_uri))
-         playSong(song_uri, activeDeviceId)
-   }
-
-   const updatePlayingStatus = (songs, uri) => {
-      const updatedSongs = { ...songs }
-      Object.keys(updatedSongs).forEach((playlistId) => {
-         updatedSongs[playlistId] = updatedSongs[playlistId].map((song) => ({
-            ...song,
-            playing: song.uri === uri,
-         }))
-      })
-      return updatedSongs
+      playSong(song_uri, activeDeviceId)
    }
 
    return (
