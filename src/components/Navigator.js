@@ -99,6 +99,12 @@ const Navigator = () => {
                   )
                break
             }
+            case Operations.OP_INSERT_NO_REORDER: {
+               const { song, playlistId, index } = step
+               console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
+               await addSongsToPlaylist(playlistId, [song.uri])
+               break
+            }
             case Operations.OP_REMOVE: {
                const { song, playlistId } = step
                console.log(`DELETE ${song.uri} from ${playlistId}`)

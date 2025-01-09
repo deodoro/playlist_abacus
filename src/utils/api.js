@@ -274,3 +274,31 @@ export const pollSpotifyState = async () => {
 
     return { uri: null, position: null };
 };
+
+export const getSongDetails = async (songUri) => {
+    const token = await getToken();
+
+    // Extract the track ID from the URI
+    const trackId = songUri.split(':').pop();
+
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch song details: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Extract and return the required fields
+    return {
+        name: data.name,
+        artist: data.artists.map((artist) => artist.name).join(", "),
+        duration: data.duration_ms,
+        image: data.album.images.length > 0 ? data.album.images[0].url : null,
+    };
+};

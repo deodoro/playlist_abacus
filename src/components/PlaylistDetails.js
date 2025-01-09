@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Operations from '../utils/operations'
-import { playSong } from '../utils/api'
+import { playSong, getSongDetails } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
 import { createDragImage, updatePlayingStatus } from '../utils/helpers'
 import SongDetailItem from './SongDetailItem'
@@ -42,12 +42,11 @@ const PlaylistDetails = ({
 
       // Clean up after drag ends
       e.target.addEventListener('dragend', () => {
-        try {
+         try {
             document.body.removeChild(dragImage)
-        }
-        catch (e) {
+         } catch (e) {
             console.error('Error removing drag image:', e)
-        }
+         }
       })
    }
 
@@ -214,6 +213,89 @@ const PlaylistDetails = ({
       setSongs((prev) => updatePlayingStatus(prev, song.uri))
    }
 
+   const handleSaveList = () => {
+      if (!songs || songs.length === 0) {
+         alert('No songs to save.')
+         return
+      }
+
+      const playlistData = {
+         name: playlist.name,
+         songs: songs.map((song) => song.uri),
+      }
+
+      const blob = new Blob([JSON.stringify(playlistData, null, 2)], {
+         type: 'application/json',
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${playlist.name.replace(/\s+/g, '_')}_playlist.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+   }
+
+   const handleLoadList = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const loadSongs = async () => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data.songs || !Array.isArray(data.songs)) {
+                    alert('Invalid playlist file format.');
+                    return;
+                }
+                console.log("JSON loaded", data);
+
+                // Use Promise.all to resolve all promises
+                const newSongs = await Promise.all(
+                    data.songs.map(async (uri, index) => {
+                        const song = await getSongDetails(uri);
+                        return { ...song, uri, index: index + songs.length };
+                    })
+                );
+
+                const transactionId = String(Date.now())
+                setSteps((prevSteps) => {
+                    const newOps = newSongs.map((song) => ({
+                       op: Operations.OP_INSERT_NO_REORDER,
+                       playlistId: playlist.id,
+                       song,
+                       index: song.index,
+                       tId: transactionId,
+                    }))
+
+                    return [...prevSteps, ...newOps]
+                })
+
+                setSongs((prev) => {
+                    const updatedSongs = { ...prev };
+                    updatedSongs[playlist.id] = [
+                        ...updatedSongs[playlist.id],
+                        ...newSongs
+                    ];
+                    return updatedSongs;
+                });
+
+            } catch (error) {
+                alert('Failed to load playlist. Please ensure the file is valid.');
+                console.error('Error loading playlist:', error);
+            }
+        };
+
+        // Call the async function
+        loadSongs();
+    };
+
+    reader.readAsText(file);
+};
+
+
    return (
       <div className='overflow-hidden relative'>
          <div className='bg-gray-100 p-4 rounded-md shadow-md h-full pt-0'>
@@ -227,7 +309,27 @@ const PlaylistDetails = ({
                      <span className='text-xs text-gray-400'>
                         {length} hours
                      </span>
-                     <div className='flex space-x-2 text-xs'>
+                     <div className=' grid grid-cols-3 gap-2 gap-y-0 text-xs'>
+                        <input
+                        id="file-input"
+                        type="file"
+                        accept=".json"
+                        style={{ display: 'none' }}
+                        onChange={handleLoadList}
+                        />
+                        <div></div>
+                        <button
+                           className='text-grey-600 hover:underline'
+                           onClick={handleSaveList}
+                        >
+                           Save
+                        </button>
+                        <button
+                           className='text-purple-600 hover:underline'
+                           onClick={() => document.getElementById('file-input').click()}
+                        >
+                           Load
+                        </button>
                         <button
                            className='text-green-600 hover:underline'
                            onClick={cloneList}
@@ -258,7 +360,7 @@ const PlaylistDetails = ({
                         )
                         e.preventDefault()
                      }} // Allow drop anywhere on UL
-                     onDragLeave={() => setDragInsertPosition(null) }
+                     onDragLeave={() => setDragInsertPosition(null)}
                      onDrop={handleDrop} // Handle drop at UL level
                   >
                      {songs?.map((song, index) => (
