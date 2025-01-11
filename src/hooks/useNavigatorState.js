@@ -13,9 +13,9 @@ const useNavigatorState = () => {
    useEffect(() => {
       const loadPlaylists = async () => {
          try {
-            const data = await fetchPlaylists()
+            const data = await fetchPlaylists() // Now returns an array
             setPlaylists(
-               data.items.map((playlist) => ({
+               data.map((playlist) => ({
                   id: playlist.id,
                   name: playlist.name,
                }))

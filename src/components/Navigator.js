@@ -56,6 +56,13 @@ const Navigator = () => {
       }
    }
 
+   const handleSelectAllPlaylists = () => {
+        setSelectedPlaylists(playlists)
+        playlists.forEach((playlist) => {
+             if (!(playlist.id in songs)) fetchPlaylistSongs(playlist.id)
+        })
+   }
+
    const selectSong = (song) => {
       setSelectedSong(song)
       if (songRefs.current[song.uri]) {
@@ -185,22 +192,23 @@ const Navigator = () => {
       setSelectedPlaylists([])
       setRepeats([])
       setSongs({})
-      try {
-         fetchPlaylists().then((data) => {
+
+      fetchPlaylists()
+         .then((data) => {
             setPlaylists(
-               data.items.map((playlist) => ({
+               data.map((playlist) => ({
                   id: playlist.id,
                   name: playlist.name,
                }))
             )
          })
-      } catch (err) {
-         if (err.name === 'UnauthorizedError') {
-            navigate('/') // Redirect to home route on 401
-         } else {
-            console.log('Failed to fech playlists:', err.message)
-         }
-      }
+         .catch((err) => {
+            if (err.name === 'UnauthorizedError') {
+               navigate('/') // Redirect to home route on 401
+            } else {
+               console.log('Failed to fetch playlists:', err.message)
+            }
+         })
    }
 
    const undoLastChange = () => {
@@ -296,6 +304,7 @@ const Navigator = () => {
                   selectedPlaylists={selectedPlaylists}
                   togglePlaylistSelection={togglePlaylistSelection}
                   deselectAllPlaylists={() => setSelectedPlaylists([])}
+                  selectAllPlaylists={handleSelectAllPlaylists}
                   filterText={filterText}
                   setFilterText={setFilterText}
                   setPlaylists={setPlaylists}

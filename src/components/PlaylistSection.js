@@ -13,6 +13,7 @@ const PlaylistSection = ({
    selectedPlaylists,
    togglePlaylistSelection,
    deselectAllPlaylists,
+   selectAllPlaylists,
    filterText,
    setFilterText,
    setPlaylists,
@@ -116,6 +117,17 @@ const PlaylistSection = ({
                      </button>
                      <button
                         className={`${
+                            selectedPlaylists.length === playlists.length
+                              ? 'text-gray-600 cursor-not-allowed'
+                              : 'text-purple-600 hover:underline'
+                        }`}
+                        onClick={selectAllPlaylists}
+                        disabled={selectedPlaylists.length === playlists.length}
+                     >
+                        Select All
+                     </button>
+                     <button
+                        className={`${
                            selectedPlaylists.length === 0
                               ? 'text-gray-600 cursor-not-allowed'
                               : 'text-blue-600 hover:underline'
@@ -146,6 +158,7 @@ PlaylistSection.propTypes = {
    playlists: PropTypes.array.isRequired,
    selectedPlaylists: PropTypes.array.isRequired,
    togglePlaylistSelection: PropTypes.func.isRequired,
+   selectAllPlaylists: PropTypes.func.isRequired,
    deselectAllPlaylists: PropTypes.func.isRequired,
    filterText: PropTypes.string.isRequired,
    setFilterText: PropTypes.func.isRequired,
