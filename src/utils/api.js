@@ -283,12 +283,15 @@ export const pollSpotifyState = async () => {
         throw new Error(`Error: ${response.status}`);
     }
 
-    const data = await response.json();
-    if (data && data.is_playing && data.item) {
-        return {
-            uri: data.item.uri,
-            position: data.progress_ms,
-        };
+    const contentLength = response.headers.get("Content-Length");
+    if (contentLength && Number(contentLength) > 0) {
+        const data = await response.json();
+        if (data && data.is_playing && data.item) {
+            return {
+                uri: data.item.uri,
+                position: data.progress_ms,
+            };
+        }
     }
 
     return { uri: null, position: null };
