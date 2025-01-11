@@ -33,8 +33,9 @@ const Navigator = () => {
    const [selectedSong, setSelectedSong] = useState(null)
    const [filterText, setFilterText] = useState('')
    const [repeats, setRepeats] = useState([])
-   const songRefs = useRef({})
    const [newPlaylistName, setNewPlaylistName] = useState('')
+   const [progress, setProgress] = useState(null)
+   const songRefs = useRef({})
    const navigate = useNavigate()
 
    useEffect(() => {
@@ -57,9 +58,24 @@ const Navigator = () => {
    }
 
    const handleSelectAllPlaylists = () => {
+        const total = playlists.reduce((acc, playlist) => acc + playlist.track_count, 0)
+        let count = 0
+        const callback = (t) => {
+            count += t
+            if (count < total)
+                setProgress({count: count, total: total})
+            else {
+                setTimeout(() => {
+                    setProgress(null)
+                }, 1000)
+            }
+        }
         setSelectedPlaylists(playlists)
         playlists.forEach((playlist) => {
-             if (!(playlist.id in songs)) fetchPlaylistSongs(playlist.id)
+             if (!(playlist.id in songs))
+                fetchPlaylistSongs(playlist.id).then(() => { if (callback) callback(playlist.track_count)})
+             else
+                if (callback) callback(playlist.track_count)
         })
    }
 
@@ -309,6 +325,7 @@ const Navigator = () => {
                   setFilterText={setFilterText}
                   setPlaylists={setPlaylists}
                   setSteps={setSteps}
+                  LoadProgress={progress}
                />
             </div>
 

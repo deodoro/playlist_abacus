@@ -18,6 +18,7 @@ const useNavigatorState = () => {
                data.map((playlist) => ({
                   id: playlist.id,
                   name: playlist.name,
+                  track_count: playlist.tracks.total,
                }))
             )
          } catch (err) {

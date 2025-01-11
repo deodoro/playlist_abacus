@@ -15,7 +15,7 @@ const PlaylistList = ({ playlists, selectedPlaylists, togglePlaylistSelection })
               : "text-gray-800 hover:bg-gray-100"
           }`}
         >
-          {playlist.name}
+          {playlist.name} <span className='text-xs text-gray-400'>({playlist.track_count} tracks)</span>
         </li>
       ))}
   </ul>

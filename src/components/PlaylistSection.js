@@ -18,6 +18,7 @@ const PlaylistSection = ({
    setFilterText,
    setPlaylists,
    setSteps,
+   LoadProgress
 }) => {
    const [isUserPopupVisible, setIsUserPopupVisible] = useState(false)
    const [user, setUser] = useState(null)
@@ -80,7 +81,7 @@ const PlaylistSection = ({
                      } // Replace with actual user avatar URL
                      alt={(user && user.name) || 'User Avatar'}
                      className='w-10 h-10 rounded-full cursor-pointer'
-                     onClick={handleAvatarClick}
+                     onClick={ handleAvatarClick }
                   />
                   {/* User Popup */}
                   {isUserPopupVisible && (
@@ -102,43 +103,66 @@ const PlaylistSection = ({
                   />
                </div>
             </div>
-
             <div className='sticky top-0 z-10 bg-gray-100 pb-2'>
-               <div className='flex items-center justify-between'>
-                  <h3 className='text-xl font-semibold text-gray-800'>
-                     Playlists
-                  </h3>
-                  <div className='flex space-x-2 font-semibold text-xs'>
-                     <button
-                        className='text-green-600 hover:underline'
-                        onClick={newPlaylist}
-                     >
-                        New Playlist
-                     </button>
-                     <button
-                        className={`${
-                            selectedPlaylists.length === playlists.length
-                              ? 'text-gray-600 cursor-not-allowed'
-                              : 'text-purple-600 hover:underline'
-                        }`}
-                        onClick={selectAllPlaylists}
-                        disabled={selectedPlaylists.length === playlists.length}
-                     >
-                        Select All
-                     </button>
-                     <button
-                        className={`${
-                           selectedPlaylists.length === 0
-                              ? 'text-gray-600 cursor-not-allowed'
-                              : 'text-blue-600 hover:underline'
-                        }`}
-                        onClick={deselectAllPlaylists}
-                        disabled={selectedPlaylists.length === 0}
-                     >
-                        Deselect All
-                     </button>
+               {LoadProgress && (
+                  <div className='h-8 overflow-hidden'>
+                     <h3 className='text-xl font-semibold text-gray-800'>
+                        Loading Songs&nbsp;
+                        <span className='text-sm'>
+                           ({LoadProgress.count} / {LoadProgress.total})
+                        </span>
+                     </h3>
+                     <div className='w-full bg-none absolute top-0 opacity-40 h-8'>
+                        <div
+                           className='bg-green-500 h-full'
+                           style={{
+                              width: `${
+                                 (LoadProgress.count / LoadProgress.total) * 100
+                              }%`,
+                           }}
+                        ></div>
+                     </div>
                   </div>
-               </div>
+               )}
+               {!LoadProgress && (
+                  <div className='flex items-center justify-between h-8'>
+                     <h3 className='text-xl font-semibold text-gray-800'>
+                        Playlists
+                     </h3>
+                     <div className='flex space-x-2 font-semibold text-xs'>
+                        <button
+                           className='text-green-600 hover:underline'
+                           onClick={newPlaylist}
+                        >
+                           New Playlist
+                        </button>
+                        <button
+                           className={`${
+                              selectedPlaylists.length === playlists.length
+                                 ? 'text-gray-600 cursor-not-allowed'
+                                 : 'text-purple-600 hover:underline'
+                           }`}
+                           onClick={selectAllPlaylists}
+                           disabled={
+                              selectedPlaylists.length === playlists.length
+                           }
+                        >
+                           Select All
+                        </button>
+                        <button
+                           className={`${
+                              selectedPlaylists.length === 0
+                                 ? 'text-gray-600 cursor-not-allowed'
+                                 : 'text-blue-600 hover:underline'
+                           }`}
+                           onClick={deselectAllPlaylists}
+                           disabled={selectedPlaylists.length === 0}
+                        >
+                           Deselect All
+                        </button>
+                     </div>
+                  </div>
+               )}
             </div>
          </div>
 
@@ -164,6 +188,7 @@ PlaylistSection.propTypes = {
    setFilterText: PropTypes.func.isRequired,
    setPlaylists: PropTypes.func.isRequired,
    setSteps: PropTypes.func.isRequired,
+   LoadProgress: PropTypes.func.isRequired,
 }
 
 export default PlaylistSection
