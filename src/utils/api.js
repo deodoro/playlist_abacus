@@ -49,18 +49,32 @@ export const fetchPlaylists = async () => {
 }
 
 export const fetchSongs = async (playlistId) => {
-   const token = await getToken()
-   const response = await fetch(
-      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-      {
-         headers: {
-            Authorization: `Bearer ${token}`,
-         },
-      }
-   )
+    const token = await getToken();
+    const limit = 100; // Max limit per Spotify API request for tracks
+    let offset = 0;
+    let allSongs = [];
+    let hasMore = true;
 
-   return await handleResponse(response)
-}
+    while (hasMore) {
+        const response = await fetch(
+            `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await handleResponse(response);
+        allSongs = allSongs.concat(data.items); // Append new tracks
+
+        offset += limit; // Move to the next page
+        hasMore = data.items.length === limit; // Continue if there are more tracks
+    }
+
+    return allSongs;
+};
+
 
 export const getUserId = async () => {
    const token = await getToken() // Replace with your token-fetching logic

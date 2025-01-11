@@ -36,7 +36,7 @@ const useNavigatorState = () => {
       return fetchSongs(playlistId)
          .then((data) => {
             let idx = 0
-            const items = data.items.map((item) => ({
+            const items = data.map((item) => ({
                name: item.track.name,
                artist: item.track.artists
                   .map((artist) => artist.name)
