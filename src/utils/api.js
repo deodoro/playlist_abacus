@@ -6,6 +6,23 @@ const getToken = async () => {
         document.location = "/login";
 }
 
+class UnauthorizedError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "UnauthorizedError";
+    }
+}
+
+const handleResponse = async (response) => {
+    if (response.status === 401) {
+        throw new UnauthorizedError("Unauthorized access");
+    }
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+    }
+    return await response.json();
+};
+
 export const fetchPlaylists = async () => {
     const token = await getToken();
     const response = await fetch("https://api.spotify.com/v1/me/playlists", {
@@ -13,8 +30,8 @@ export const fetchPlaylists = async () => {
             Authorization: `Bearer ${token}`
         },
     });
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const fetchSongs = async (playlistId) => {
@@ -26,8 +43,8 @@ export const fetchSongs = async (playlistId) => {
             },
         }
     );
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const getUserId = async () => {
@@ -39,9 +56,7 @@ export const getUserId = async () => {
         },
     });
 
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-    const data = await response.json();
+    const data = await handleResponse(response);
     return data.id; // User ID
 };
 
@@ -60,8 +75,8 @@ export const createPlaylist = async (playlistName, description = "") => {
             public: false, // You can change this to true if you want the playlist to be public
         }),
     });
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const addSongsToPlaylist = async (playlistId, songUris) => {
@@ -78,8 +93,8 @@ export const addSongsToPlaylist = async (playlistId, songUris) => {
             }),
         }
     );
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const deleteList = async (playlistId) => {
@@ -91,8 +106,7 @@ export const deleteList = async (playlistId) => {
         },
     });
 
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return "Playlist successfully deleted (unfollowed)";
+    return await handleResponse(response);
 };
 
 export const addSongToPlaylistAtPosition = async (playlistId, songUri, position) => {
@@ -110,8 +124,8 @@ export const addSongToPlaylistAtPosition = async (playlistId, songUri, position)
             }),
         }
     );
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const moveTrackInPlaylist = async (playlistId, sourceIndex, targetIndex) => {
@@ -129,8 +143,8 @@ export const moveTrackInPlaylist = async (playlistId, sourceIndex, targetIndex) 
             }),
         }
     );
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const removeSongFromPlaylist = async (playlistId, songUri) => {
@@ -149,8 +163,8 @@ export const removeSongFromPlaylist = async (playlistId, songUri) => {
             }),
         }
     );
-    if (!response.ok) throw new Error(`Error: ${response.status}`);
-    return await response.json();
+
+    return await handleResponse(response);
 };
 
 export const playSong = async (songUri, activeDeviceId) => {
@@ -171,6 +185,10 @@ export const playSong = async (songUri, activeDeviceId) => {
       }),
     });
 
+    if (response.status === 401) {
+        throw new UnauthorizedError("Unauthorized access");
+    }
+
     if (!response.ok) {
       throw new Error(`Failed to play song: ${response.status}`);
     }
@@ -188,11 +206,8 @@ export const getUserProfile = async () => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user profile: ${response.status}`);
-  }
+  const data = await handleResponse(response);
 
-  const data = await response.json();
   return {
     name: data.display_name,
     email: data.email,
@@ -210,11 +225,7 @@ export const getAvailableDevices = async () => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch devices: ${response.status}`);
-  }
-
-  const data = await response.json();
+  const data = await handleResponse(response);
   const activeDevice = data.devices.find((device) => device.is_active);
 
   return {
@@ -240,6 +251,10 @@ export const setActiveDevice = async (deviceId) => {
     }),
   });
 
+  if (response.status === 401) {
+    throw new UnauthorizedError("Unauthorized access");
+  }
+
   if (!response.ok) {
     throw new Error(`Failed to set active device: ${response.status}`);
   }
@@ -255,6 +270,10 @@ export const pollSpotifyState = async () => {
             Authorization: `Bearer ${token}`,
         },
     });
+
+    if (response.status === 401) {
+        throw new UnauthorizedError("Unauthorized access");
+    }
 
     if (!response.ok) {
         if (response.status === 204) {
@@ -288,13 +307,8 @@ export const getSongDetails = async (songUri) => {
         },
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to fetch song details: ${response.status}`);
-    }
+    const data = await handleResponse(response);
 
-    const data = await response.json();
-
-    // Extract and return the required fields
     return {
         name: data.name,
         artist: data.artists.map((artist) => artist.name).join(", "),

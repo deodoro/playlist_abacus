@@ -15,6 +15,7 @@ import {
 } from '../utils/api'
 import Operations from '../utils/operations'
 import SavePanel from './SavePanel'
+import { useNavigate } from 'react-router-dom'
 
 const Navigator = () => {
    const {
@@ -34,6 +35,7 @@ const Navigator = () => {
    const [repeats, setRepeats] = useState([])
    const songRefs = useRef({})
    const [newPlaylistName, setNewPlaylistName] = useState('')
+   const navigate = useNavigate()
 
    useEffect(() => {
       if (selectedPlaylists.length > 0) {
@@ -87,50 +89,92 @@ const Navigator = () => {
    const applyChanges = async () => {
       for (const step of steps) {
          switch (step.op) {
-            case Operations.OP_INSERT: {
-               const { song, playlistId, index } = step
-               console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-               await addSongsToPlaylist(playlistId, [song.uri])
-               if (songs[playlistId].length > 1)
-                  await moveTrackInPlaylist(
-                     playlistId,
-                     songs[playlistId].length - 1,
-                     index + 1
+            case Operations.OP_INSERT:
+               try {
+                  const { song, playlistId, index } = step
+                  console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
+                  await addSongsToPlaylist(playlistId, [song.uri])
+                  if (songs[playlistId].length > 1)
+                     await moveTrackInPlaylist(
+                        playlistId,
+                        songs[playlistId].length - 1,
+                        index + 1
+                     )
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/')
+                  } else {
+                     console.log('Failed to add song:', err.message)
+                  }
+               }
+               break
+            case Operations.OP_INSERT_NO_REORDER:
+               try {
+                  const { song, playlistId, index } = step
+                  console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
+                  await addSongsToPlaylist(playlistId, [song.uri])
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/')
+                  } else {
+                     console.log('Failed to add song:', err.message)
+                  }
+               }
+               break
+            case Operations.OP_REMOVE:
+               try {
+                  const { song, playlistId } = step
+                  console.log(`DELETE ${song.uri} from ${playlistId}`)
+                  await removeSongFromPlaylist(playlistId, song.uri)
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/')
+                  } else {
+                     console.log('Failed to remove song:', err.message)
+                  }
+               }
+               break
+            case Operations.OP_MOVE:
+               try {
+                  const { song, playlistId, fromIndex, toIndex } = step
+                  console.log(
+                     `MOVE ${song.uri} in ${playlistId} from ${fromIndex} to ${toIndex}`
                   )
+                  await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/')
+                  } else {
+                     console.log('Failed to move song:', err.message)
+                  }
+               }
                break
-            }
-            case Operations.OP_INSERT_NO_REORDER: {
-               const { song, playlistId, index } = step
-               console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-               await addSongsToPlaylist(playlistId, [song.uri])
+            case Operations.OP_DELETE_PLAYLIST:
+               try {
+                  console.log(`DELETE LIST ${step.playlist.id}`)
+                  await deleteList(step.playlist.id)
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/')
+                  } else {
+                     console.log('Failed to delete playlist:', err.message)
+                  }
+               }
                break
-            }
-            case Operations.OP_REMOVE: {
-               const { song, playlistId } = step
-               console.log(`DELETE ${song.uri} from ${playlistId}`)
-               await removeSongFromPlaylist(playlistId, song.uri)
+            case Operations.OP_NEW_PLAYLIST:
+               try {
+                  const { playlist, uris } = step
+                  const newPlaylist = await createPlaylist(playlist.name)
+                  if (uris.length > 0)
+                     await addSongsToPlaylist(newPlaylist.id, uris)
+               } catch (err) {
+                  if (err.name === 'UnauthorizedError') {
+                     navigate('/') // Redirect to home route on 401
+                  } else {
+                     console.log('Failed to create playlist:', err.message)
+                  }
+               }
                break
-            }
-            case Operations.OP_MOVE: {
-               const { song, playlistId, fromIndex, toIndex } = step
-               console.log(
-                  `MOVE ${song.uri} in ${playlistId} from ${fromIndex} to ${toIndex}`
-               )
-               await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
-               break
-            }
-            case Operations.OP_DELETE_PLAYLIST: {
-               console.log(`DELETE LIST ${step.playlist.id}`)
-               await deleteList(step.playlist.id)
-               break
-            }
-            case Operations.OP_NEW_PLAYLIST: {
-               const { playlist, uris } = step
-               const newPlaylist = await createPlaylist(playlist.name)
-               if (uris.length > 0)
-                  await addSongsToPlaylist(newPlaylist.id, uris)
-               break
-            }
          }
       }
       setSteps([])
@@ -141,16 +185,22 @@ const Navigator = () => {
       setSelectedPlaylists([])
       setRepeats([])
       setSongs({})
-      fetchPlaylists()
-         .then((data) =>
+      try {
+         fetchPlaylists().then((data) => {
             setPlaylists(
                data.items.map((playlist) => ({
                   id: playlist.id,
                   name: playlist.name,
                }))
             )
-         )
-         .catch(console.error)
+         })
+      } catch (err) {
+         if (err.name === 'UnauthorizedError') {
+            navigate('/') // Redirect to home route on 401
+         } else {
+            console.log('Failed to fech playlists:', err.message)
+         }
+      }
    }
 
    const undoLastChange = () => {

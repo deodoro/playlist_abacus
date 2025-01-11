@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { playSong, pollSpotifyState } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
 import { updatePlayingStatus } from '../utils/helpers'
+import { useNavigate } from 'react-router-dom'
 
 const SongList = ({
    songs,
@@ -14,6 +15,7 @@ const SongList = ({
 }) => {
    const [hoveredSong, setHoveredSong] = useState(null)
    const { activeDeviceId } = useDevice()
+   const navigate = useNavigate()
 
    useEffect(() => {
       const pollInterval = setInterval(async () => {
@@ -38,12 +40,16 @@ const SongList = ({
                })
             }
          } catch (error) {
-            console.error('Error polling Spotify state:', error)
+            if (error.name === 'UnauthorizedError') {
+               navigate('/') // Redirect to home route on 401
+            } else {
+               console.error('Error polling Spotify state:', error)
+            }
          }
-      }, 30000) // Poll every 30 seconds
+      }, 5000) // Poll every 30 seconds
 
       return () => clearInterval(pollInterval) // Clean up on unmount
-   }, [songs, setSongs])
+   }, [songs, setSongs, navigate])
 
    const handleDragStart = (e, song) => {
       e.dataTransfer.setData('song', JSON.stringify(song))

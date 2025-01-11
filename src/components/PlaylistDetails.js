@@ -5,6 +5,7 @@ import { playSong, getSongDetails } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
 import { createDragImage, updatePlayingStatus } from '../utils/helpers'
 import SongDetailItem from './SongDetailItem'
+import { useNavigate } from 'react-router-dom'
 
 const PlaylistDetails = ({
    playlist,
@@ -22,6 +23,7 @@ const PlaylistDetails = ({
    const [_, setDragOver] = useState('')
    const [dragInsertPosition, setDragInsertPosition] = useState(null)
    const { activeDeviceId } = useDevice()
+   const navigate = useNavigate()
 
    useEffect(() => {
       if (songs) {
@@ -283,8 +285,11 @@ const PlaylistDetails = ({
                 });
 
             } catch (error) {
+                if (error.name === 'UnauthorizedError') {
+                    navigate('/')
+                 } else
                 alert('Failed to load playlist. Please ensure the file is valid.');
-                console.error('Error loading playlist:', error);
+                  console.error('Error loading playlist:', error);
             }
         };
 

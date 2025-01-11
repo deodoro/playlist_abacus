@@ -5,7 +5,7 @@ const FilterBox = ({ filterText, setFilterText }) => (
     <div className="relative">
       <input
         type="text"
-        placeholder="Filter..."
+        placeholder="Filter Playlists and Songs..."
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
