@@ -35,12 +35,11 @@ const SongsSection = ({
 
                {/* Repeated Section with Tooltip */}
                <span
-                  className='text-sm text-orange-200 flex items-center gap-2 cursor-pointer'
+                  className='text-sm text-orange-200 flex items-center gap-2 cursor-pointer hover:underline'
                   onClick={toggleFilter}
                   title='Click to filter to repeated songs only'
                >
                   {<FaFilter className={isFiltering ? 'opacity-100' : 'opacity-20'} />}{' '}
-                  {/* Show filter icon if filtering */}
                   {repeats.length} repeated
                </span>
             </h3>
