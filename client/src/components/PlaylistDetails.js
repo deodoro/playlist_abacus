@@ -223,7 +223,7 @@ const PlaylistDetails = ({
 
       const playlistData = {
          name: playlist.name,
-         songs: songs.map((song) => song.uri),
+         songs: songs.map((song) => ({name: song.name, artist: song.artist, uri: song.uri})),
       }
 
       const blob = new Blob([JSON.stringify(playlistData, null, 2)], {
@@ -256,7 +256,7 @@ const PlaylistDetails = ({
 
                 // Use Promise.all to resolve all promises
                 const newSongs = await Promise.all(
-                    data.songs.map(async (uri, index) => {
+                    data.songs.map(song => song.uri).map(async (uri, index) => {
                         const song = await getSongDetails(uri);
                         return { ...song, uri, index: index + songs.length };
                     })
