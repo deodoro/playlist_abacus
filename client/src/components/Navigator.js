@@ -116,13 +116,15 @@ const Navigator = () => {
                try {
                   const { song, playlistId, index } = step
                   console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-                  await addSongsToPlaylist(playlistId, [song.uri])
-                  if (songs[playlistId].length > 1)
-                     await moveTrackInPlaylist(
-                        playlistId,
-                        songs[playlistId].length - 1,
-                        index + 1
-                     )
+                  if (playlistId != 'FAVORITES') {
+                      await addSongsToPlaylist(playlistId, [song.uri])
+                      if (songs[playlistId].length > 1)
+                         await moveTrackInPlaylist(
+                            playlistId,
+                            songs[playlistId].length - 1,
+                            index + 1
+                         )
+                  }
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -135,7 +137,9 @@ const Navigator = () => {
                try {
                   const { song, playlistId, index } = step
                   console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-                  await addSongsToPlaylist(playlistId, [song.uri])
+                  if (playlistId != 'FAVORITES') {
+                    await addSongsToPlaylist(playlistId, [song.uri])
+                  }
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -148,7 +152,8 @@ const Navigator = () => {
                try {
                   const { song, playlistId } = step
                   console.log(`DELETE ${song.uri} from ${playlistId}`)
-                  await removeSongFromPlaylist(playlistId, song.uri)
+                  if (playlistId != 'FAVORITES')
+                    await removeSongFromPlaylist(playlistId, song.uri)
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -163,7 +168,8 @@ const Navigator = () => {
                   console.log(
                      `MOVE ${song.uri} in ${playlistId} from ${fromIndex} to ${toIndex}`
                   )
-                  await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
+                  if (playlistId != 'FAVORITES')
+                    await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -311,7 +317,7 @@ const Navigator = () => {
    return (
       <div className='flex text-gray-700 text-sm leading-6'>
          {/* Left Panel */}
-         <div className='flex flex-col sticky top-0 bottom-0 h-screen w-1/4 bg-gray-100'>
+         <div className='flex flex-col sticky top-0 bottom-0 h-screen w-1/4 bg-gray-300'>
             {/* FilterBox and PlaylistSection */}
             <div className='p-4 flex-1 overflow-auto relative'>
                {/* <FilterBox filterText={filterText} setFilterText={setFilterText} /> */}
@@ -353,7 +359,7 @@ const Navigator = () => {
 
          {/* Right Panel */}
          <div
-            className={`p-4 bg-gray-50 grid grid-cols-3 gap-4 gap-y-8 w-3/4 h-screen overflow-auto ${
+            className={`bg-gray-50 grid grid-cols-3 gap-0 gap-y-0 w-3/4 h-screen overflow-auto ${
                selectedPlaylists.length > 3
                   ? 'auto-rows-[50%]'
                   : 'auto-rows-[100%]'

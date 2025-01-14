@@ -223,7 +223,11 @@ const PlaylistDetails = ({
 
       const playlistData = {
          name: playlist.name,
-         songs: songs.map((song) => ({name: song.name, artist: song.artist, uri: song.uri})),
+         songs: songs.map((song) => ({
+            name: song.name,
+            artist: song.artist,
+            uri: song.uri,
+         })),
       }
 
       const blob = new Blob([JSON.stringify(playlistData, null, 2)], {
@@ -240,70 +244,72 @@ const PlaylistDetails = ({
    }
 
    const handleLoadList = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+      const file = event.target.files[0]
+      if (!file) return
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const loadSongs = async () => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+         const loadSongs = async () => {
             try {
-                const data = JSON.parse(e.target.result);
-                if (!data.songs || !Array.isArray(data.songs)) {
-                    alert('Invalid playlist file format.');
-                    return;
-                }
-                console.log("JSON loaded", data);
+               const data = JSON.parse(e.target.result)
+               if (!data.songs || !Array.isArray(data.songs)) {
+                  alert('Invalid playlist file format.')
+                  return
+               }
+               console.log('JSON loaded', data)
 
-                // Use Promise.all to resolve all promises
-                const newSongs = await Promise.all(
-                    data.songs.map(song => song.uri).map(async (uri, index) => {
-                        const song = await getSongDetails(uri);
-                        return { ...song, uri, index: index + songs.length };
-                    })
-                );
+               // Use Promise.all to resolve all promises
+               const newSongs = await Promise.all(
+                  data.songs
+                     .map((song) => song.uri)
+                     .map(async (uri, index) => {
+                        const song = await getSongDetails(uri)
+                        return { ...song, uri, index: index + songs.length }
+                     })
+               )
 
-                const transactionId = String(Date.now())
-                setSteps((prevSteps) => {
-                    const newOps = newSongs.map((song) => ({
-                       op: Operations.OP_INSERT_NO_REORDER,
-                       playlistId: playlist.id,
-                       song,
-                       index: song.index,
-                       tId: transactionId,
-                    }))
+               const transactionId = String(Date.now())
+               setSteps((prevSteps) => {
+                  const newOps = newSongs.map((song) => ({
+                     op: Operations.OP_INSERT_NO_REORDER,
+                     playlistId: playlist.id,
+                     song,
+                     index: song.index,
+                     tId: transactionId,
+                  }))
 
-                    return [...prevSteps, ...newOps]
-                })
+                  return [...prevSteps, ...newOps]
+               })
 
-                setSongs((prev) => {
-                    const updatedSongs = { ...prev };
-                    updatedSongs[playlist.id] = [
-                        ...updatedSongs[playlist.id],
-                        ...newSongs
-                    ];
-                    return updatedSongs;
-                });
-
+               setSongs((prev) => {
+                  const updatedSongs = { ...prev }
+                  updatedSongs[playlist.id] = [
+                     ...updatedSongs[playlist.id],
+                     ...newSongs,
+                  ]
+                  return updatedSongs
+               })
             } catch (error) {
-                if (error.name === 'UnauthorizedError') {
-                    navigate('/')
-                 } else
-                alert('Failed to load playlist. Please ensure the file is valid.');
-                  console.error('Error loading playlist:', error);
+               if (error.name === 'UnauthorizedError') {
+                  navigate('/')
+               } else
+                  alert(
+                     'Failed to load playlist. Please ensure the file is valid.'
+                  )
+               console.error('Error loading playlist:', error)
             }
-        };
+         }
 
-        // Call the async function
-        loadSongs();
-    };
+         // Call the async function
+         loadSongs()
+      }
 
-    reader.readAsText(file);
-};
-
+      reader.readAsText(file)
+   }
 
    return (
       <div className='overflow-hidden relative'>
-         <div className='bg-gray-100 p-4 rounded-md shadow-md h-full pt-0'>
+         <div className='bg-gray-100 p-4 h-full pt-0 border-r-2 border-b-2'>
             <div className='flex flex-col h-full'>
                <div className=''>
                   <h3 className='sticky top-0 z-10 pt-6 bg-gray-100 text-lg font-semibold text-gray-800 flex items-center justify-between pb-2'>
@@ -316,11 +322,11 @@ const PlaylistDetails = ({
                      </span>
                      <div className=' grid grid-cols-3 gap-2 gap-y-0 text-xs'>
                         <input
-                        id="file-input"
-                        type="file"
-                        accept=".json"
-                        style={{ display: 'none' }}
-                        onChange={handleLoadList}
+                           id='file-input'
+                           type='file'
+                           accept='.json'
+                           style={{ display: 'none' }}
+                           onChange={handleLoadList}
                         />
                         <div></div>
                         <button
@@ -329,24 +335,32 @@ const PlaylistDetails = ({
                         >
                            Save
                         </button>
-                        <button
-                           className='text-purple-600 hover:underline'
-                           onClick={() => document.getElementById('file-input').click()}
-                        >
-                           Load
-                        </button>
+                        {playlist.id != 'FAVORITES' && (
+                           <button
+                              className='text-purple-600 hover:underline'
+                              onClick={() =>
+                                 document.getElementById('file-input').click()
+                              }
+                           >
+                              Load
+                           </button>
+                        )}
+                        {playlist.id == 'FAVORITES' && <div></div>}
                         <button
                            className='text-green-600 hover:underline'
                            onClick={cloneList}
                         >
                            Clone
                         </button>
-                        <button
-                           className='text-red-500 hover:underline'
-                           onClick={handleDeleteList}
-                        >
-                           Delete
-                        </button>
+                        {playlist.id != 'FAVORITES' && (
+                           <button
+                              className='text-red-500 hover:underline'
+                              onClick={handleDeleteList}
+                           >
+                              Delete
+                           </button>
+                        )}{' '}
+                        {playlist.id == 'FAVORITES' && <div></div>}
                         <button
                            className='text-blue-500 hover:underline'
                            onClick={handleDeselect}

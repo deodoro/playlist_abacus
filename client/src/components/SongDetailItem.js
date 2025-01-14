@@ -1,5 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart } from '@fortawesome/free-solid-svg-icons'
 
 const SongDetailItem = ({
    song,
@@ -36,6 +38,13 @@ const SongDetailItem = ({
          {song.playing && (
             <div className='absolute inset-0 bg-yellow-500 opacity-10 pointer-events-none'></div>
          )}
+
+         {song.favorite && (
+                            <FontAwesomeIcon
+                               icon={faHeart}
+                               className='text-red-500 absolute top-2 left-0 opacity-20 h-6'
+                            />
+                         )}
          {/* Song Index and Name */}
          <div className='flex-1 break-words z-10 pointer-events-none'>
             {song.index + 1}. {song.name}

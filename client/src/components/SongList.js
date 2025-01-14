@@ -4,6 +4,8 @@ import { playSong, pollSpotifyState } from '../utils/api'
 import { useDevice } from '../context/DeviceContext'
 import { updatePlayingStatus } from '../utils/helpers'
 import { useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart } from '@fortawesome/free-solid-svg-icons'
 
 const SongList = ({
    songs,
@@ -114,6 +116,12 @@ const SongList = ({
 
                {/* Middle Section: Song Details */}
                <div className='flex flex-col flex-1 px-4 truncate'>
+                  {song.favorite && (
+                     <FontAwesomeIcon
+                        icon={faHeart}
+                        className='text-red-500 absolute top-2 left-15 opacity-20 h-7'
+                     />
+                  )}
                   <span
                      className={`text-wrap ${
                         selectedSong?.uri === song.uri ? 'text-white' : ''
@@ -133,7 +141,7 @@ const SongList = ({
                </div>
 
                {/* Right Section: Song Duration */}
-               <div className={'text-gray-300 text-sm font-semibold'}>
+               <div className={'text-gray-300 text-sm font-semibold relative'}>
                   {Math.floor(song.duration / 60)}:
                   {Math.floor(song.duration % 60)
                      .toString()

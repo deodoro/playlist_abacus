@@ -68,8 +68,8 @@ const PlaylistSection = ({
    }
 
    return (
-      <div className='flex flex-col h-full'>
-         <div className='bg-gray-100'>
+      <div className='flex flex-col h-full bg-gray-300'>
+         <div>
             {/* Header with User Avatar and Filter Box */}
             <div className='flex items-center p-2'>
                {/* User Avatar */}
@@ -103,7 +103,7 @@ const PlaylistSection = ({
                   />
                </div>
             </div>
-            <div className='sticky top-0 z-10 bg-gray-100 pb-2'>
+            <div className='sticky top-0 z-10 pb-2'>
                {LoadProgress && (
                   <div className='h-8 overflow-hidden'>
                      <h3 className='text-xl font-semibold text-gray-800'>

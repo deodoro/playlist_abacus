@@ -75,6 +75,32 @@ export const fetchSongs = async (playlistId) => {
     return allSongs;
 };
 
+export const fetchFavoriteSongs = async () => {
+    const token = await getToken();
+    const limit = 50; // Max limit per Spotify API request for saved tracks
+    let offset = 0;
+    let allFavorites = [];
+    let hasMore = true;
+
+    while (hasMore) {
+        const response = await fetch(
+            `https://api.spotify.com/v1/me/tracks?limit=${limit}&offset=${offset}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await handleResponse(response);
+        allFavorites = allFavorites.concat(data.items.map((item) => item.track)); // Extract tracks
+
+        offset += limit; // Move to the next page
+        hasMore = data.items.length === limit; // Continue if there are more tracks
+    }
+
+    return allFavorites;
+};
 
 export const getUserId = async () => {
    const token = await getToken() // Replace with your token-fetching logic

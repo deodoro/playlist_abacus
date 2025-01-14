@@ -69,7 +69,7 @@ const PlaylistActions = ({
     }
 
     return (
-        <div className='bg-gray-100 p-4 rounded-md shadow-md h-[50vh] overflow-hidden'>
+        <div className='bg-gray-100 p-4 h-[50vh] overflow-hidden'>
             <h3 className='text-lg font-semibold mb-2'>Actions</h3>
             <div className='mb-4 text-gray-400'>You can create a new playlist by performing one of following operations:</div>
             <div className='mb-4'>
