@@ -403,3 +403,43 @@ export const getSongDetails = async (songUri) => {
       image: data.album.images.length > 0 ? data.album.images[0].url : null,
    }
 }
+
+export const addToFavorites = async (uri) => {
+    const trackId = uri.substr(uri.lastIndexOf(":")+1)
+    const token = await getToken();
+
+    const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: [trackId] }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to add track to favorites: ${response.status}`);
+    }
+
+    return `Track ${trackId} added to favorites`;
+};
+
+export const removeFromFavorites = async (uri) => {
+    const trackId = uri.substr(uri.lastIndexOf(":")+1)
+    const token = await getToken();
+
+    const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: [trackId] }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to remove track from favorites: ${response.status}`);
+    }
+
+    return `Track ${trackId} removed from favorites`;
+};

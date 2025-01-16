@@ -12,6 +12,9 @@ import {
    deleteList,
    removeSongFromPlaylist,
    moveTrackInPlaylist,
+   addToFavorites,
+   removeFromFavorites,
+   fetchFavoriteSongs
 } from '../utils/api'
 import Operations from '../utils/operations'
 import SavePanel from './SavePanel'
@@ -58,25 +61,28 @@ const Navigator = () => {
    }
 
    const handleSelectAllPlaylists = () => {
-        const total = playlists.reduce((acc, playlist) => acc + playlist.track_count, 0)
-        let count = 0
-        const callback = (t) => {
-            count += t
-            if (count < total)
-                setProgress({count: count, total: total})
-            else {
-                setTimeout(() => {
-                    setProgress(null)
-                }, 1000)
-            }
-        }
-        setSelectedPlaylists(playlists)
-        playlists.forEach((playlist) => {
-             if (!(playlist.id in songs))
-                fetchPlaylistSongs(playlist.id).then(() => { if (callback) callback(playlist.track_count)})
-             else
-                if (callback) callback(playlist.track_count)
-        })
+      const total = playlists.reduce(
+         (acc, playlist) => acc + playlist.track_count,
+         0
+      )
+      let count = 0
+      const callback = (t) => {
+         count += t
+         if (count < total) setProgress({ count: count, total: total })
+         else {
+            setTimeout(() => {
+               setProgress(null)
+            }, 1000)
+         }
+      }
+      setSelectedPlaylists(playlists)
+      playlists.forEach((playlist) => {
+         if (!(playlist.id in songs))
+            fetchPlaylistSongs(playlist.id).then(() => {
+               if (callback) callback(playlist.track_count)
+            })
+         else if (callback) callback(playlist.track_count)
+      })
    }
 
    const selectSong = (song) => {
@@ -116,14 +122,18 @@ const Navigator = () => {
                try {
                   const { song, playlistId, index } = step
                   console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-                  if (playlistId != 'FAVORITES') {
-                      await addSongsToPlaylist(playlistId, [song.uri])
-                      if (songs[playlistId].length > 1)
-                         await moveTrackInPlaylist(
-                            playlistId,
-                            songs[playlistId].length - 1,
-                            index + 1
-                         )
+                  if (playlistId === 'FAVORITES') {
+                     // Handle adding to FAVORITES
+                     await addToFavorites(song.uri)
+                     console.log(`Added ${song.uri} to FAVORITES`)
+                  } else {
+                     await addSongsToPlaylist(playlistId, [song.uri])
+                     if (songs[playlistId].length > 1)
+                        await moveTrackInPlaylist(
+                           playlistId,
+                           songs[playlistId].length - 1,
+                           index + 1
+                        )
                   }
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
@@ -137,8 +147,11 @@ const Navigator = () => {
                try {
                   const { song, playlistId, index } = step
                   console.log(`ADD ${song.uri} to ${playlistId} at ${index}`)
-                  if (playlistId != 'FAVORITES') {
-                    await addSongsToPlaylist(playlistId, [song.uri])
+                  if (playlistId === 'FAVORITES') {
+                     await addToFavorites(song.uri)
+                     console.log(`Added ${song.uri} to FAVORITES`)
+                  } else {
+                     await addSongsToPlaylist(playlistId, [song.uri])
                   }
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
@@ -152,8 +165,11 @@ const Navigator = () => {
                try {
                   const { song, playlistId } = step
                   console.log(`DELETE ${song.uri} from ${playlistId}`)
-                  if (playlistId != 'FAVORITES')
-                    await removeSongFromPlaylist(playlistId, song.uri)
+                  if (playlistId === 'FAVORITES') {
+                     // Handle removing from FAVORITES
+                     await removeFromFavorites(song.uri)
+                     console.log(`Removed ${song.uri} from FAVORITES`)
+                  } else await removeSongFromPlaylist(playlistId, song.uri)
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -169,7 +185,7 @@ const Navigator = () => {
                      `MOVE ${song.uri} in ${playlistId} from ${fromIndex} to ${toIndex}`
                   )
                   if (playlistId != 'FAVORITES')
-                    await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
+                     await moveTrackInPlaylist(playlistId, fromIndex, toIndex)
                } catch (err) {
                   if (err.name === 'UnauthorizedError') {
                      navigate('/')
@@ -214,23 +230,47 @@ const Navigator = () => {
       setSelectedPlaylists([])
       setRepeats([])
       setSongs({})
+      const loadPlaylists = async () => {
+        try {
+            const data = await fetchPlaylists();
+            const favoriteSongs = await fetchFavoriteSongs();
 
-      fetchPlaylists()
-         .then((data) => {
-            setPlaylists(
-               data.map((playlist) => ({
-                  id: playlist.id,
-                  name: playlist.name,
-               }))
-            )
-         })
-         .catch((err) => {
+            const favoritePlaylist = {
+                id: 'FAVORITES',
+                name: 'Favorites',
+                track_count: favoriteSongs.length,
+            };
+
+            setPlaylists([
+                ...data.map((playlist) => ({
+                    id: playlist.id,
+                    name: playlist.name,
+                    track_count: playlist.tracks.total,
+                })),
+                favoritePlaylist, // Append special playlist for favorites
+            ]);
+            setSongs((prev) => ({
+                ...prev,
+                FAVORITES: favoriteSongs.map((track, idx) => ({
+                    name: track.name,
+                    artist: track.artists.map((artist) => artist.name).join(', '),
+                    duration: track.duration_ms / 1000,
+                    uri: track.uri,
+                    index: idx,
+                    image: track.album.images?.[0]?.url || null,
+                    favorite: true
+                })),
+            }));
+        } catch (err) {
             if (err.name === 'UnauthorizedError') {
-               navigate('/') // Redirect to home route on 401
+                navigate('/'); // Redirect on unauthorized
             } else {
-               console.log('Failed to fetch playlists:', err.message)
+                console.error('Failed to fetch playlists:', err);
             }
-         })
+        }
+    };
+
+    loadPlaylists();
    }
 
    const undoLastChange = () => {

@@ -68,6 +68,8 @@ const PlaylistDetails = ({
 
       setDragOver('')
       setDragInsertPosition(null)
+
+      if (origPlaylistId === 'FAVORITES' && playlist.id === 'FAVORITES') return
       setSteps((prevSteps) => {
          const insertOp = {
             op: Operations.OP_INSERT,
@@ -378,7 +380,7 @@ const PlaylistDetails = ({
                            parseInt(e.target.closest('li')?.dataset.index)
                         )
                         e.preventDefault()
-                     }} // Allow drop anywhere on UL
+                     }}
                      onDragLeave={() => setDragInsertPosition(null)}
                      onDrop={handleDrop} // Handle drop at UL level
                   >
