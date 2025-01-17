@@ -491,9 +491,51 @@ export const createCustomPlaylist = async (
 
       const data = await response.json() // Parse the response
       console.log('Playlist created successfully:', data)
-      return data // Return the created playlist data
+      return data
    } catch (error) {
       console.error('Error creating playlist:', error.message)
-      throw error // Rethrow the error for further handling
+      throw error
    }
 }
+
+export const searchSong = async (name, artist) => {
+    const token = await getToken(); // Replace with your token-fetching logic
+    const query = encodeURIComponent(`${name} ${artist}`); // Encode the search query
+    const url = `https://api.spotify.com/v1/search?q=${query}&type=track&limit=1`; // Adjust the endpoint as needed
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`, // Pass the authentication token
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to search for song: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const track = data.tracks.items[0]; // Get the first track from the results
+
+        if (!track) {
+            return null; // Return null if no track is found
+        }
+
+        console.log(`Searched for (${name}, ${artist}) Found track: ${track.name} by ${track.artists.map((artist) => artist.name).join(', ')}`);
+
+        return {
+            name: track.name,
+            artist: track.artists.map((artist) => artist.name).join(', '),
+            duration: track.duration_ms / 1000,
+            uri: track.uri,
+            index: 0, // Default index for a single search
+            image: track.album.images?.[0]?.url || null,
+            favorite: false, // Default value
+        };
+    } catch (error) {
+        console.error('Error searching for song:', error.message);
+        throw error; // Rethrow the error for further handling
+    }
+};
