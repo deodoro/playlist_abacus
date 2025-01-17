@@ -51,32 +51,83 @@ class PlaylistHandler(CorsHandler):
             return
 
         try:
-            instructions = f"Given the user's playlists, produce a new playlist. The playlist should not exceed the length of {seed['length']} {seed['length_unit']}. {".".join(seed['instructions'])} Reply only the JSON with songs' names and artists.\n\n---SEED PLAYLISTS:\n"
-            instructions += "\n".join([",".join([j['artist'] + ' - ' + j['name'] for j in i]) for i in seed['playlists']])
-            instructions += "--- FAVORITE SONGS" + ",".join([j['artist'] + ' - ' + j['name'] for j in seed['favorites']]) + "\n"
-            chatgpt_model_name = os.getenv('CHAT_MODEL') or 'gpt-4o'
-            chat_log.info(instructions)
+            # instructions = f"Given the user's playlists, produce a new playlist. The playlist should not exceed the length of {seed['length']} {seed['length_unit']}. {".".join(seed['instructions'])} Reply only the JSON with songs' names and artists.\n\n---SEED PLAYLISTS:\n"
+            # instructions += "\n".join([",".join([j['artist'] + ' - ' + j['name'] for j in i]) for i in seed['playlists']])
+            # instructions += "--- FAVORITE SONGS" + ",".join([j['artist'] + ' - ' + j['name'] for j in seed['favorites']]) + "\n"
+            # chatgpt_model_name = os.getenv('CHAT_MODEL') or 'gpt-4o'
+            # chat_log.info(instructions)
 
-            response = client.chat.completions.create(
-                model=chatgpt_model_name,
-                messages=[
-                    {'role': "user", 'content': instructions}
-                ],
-                temperature=temperature,
-                stream=True
-            )
+            # response = client.chat.completions.create(
+            #     model=chatgpt_model_name,
+            #     messages=[
+            #         {'role': "user", 'content': instructions}
+            #     ],
+            #     temperature=temperature,
+            #     stream=True
+            # )
 
-            self.set_header('Content-Type', 'text/event-stream;charset=utf-8')
-            self.set_header('Cache-Control', 'no-cache')
+            # self.set_header('Content-Type', 'text/event-stream;charset=utf-8')
+            # self.set_header('Cache-Control', 'no-cache')
 
-            content = ''
-            for chunk in response:
-                if chunk.choices[0].delta.content:
-                    piece = chunk.choices[0].delta.content
-                    content += piece
+            # content = ''
+            # for chunk in response:
+            #     if chunk.choices[0].delta.content:
+            #         piece = chunk.choices[0].delta.content
+            #         content += piece
 
-            reply = json.loads('\n'.join(content.split('\n')[1:-1]))
-            self.write({'songs': reply})
+            # reply = json.loads('\n'.join(content.split('\n')[1:-1]))
+            # self.write({'songs': reply})
+            json_songs = """
+            {
+    "songs": [
+        {
+            "song": "Sunshine of Your Love",
+            "artist": "Cream"
+        },
+        {
+            "song": "L.A. Woman",
+            "artist": "The Doors"
+        },
+        {
+            "song": "White Room",
+            "artist": "Cream"
+        },
+        {
+            "song": "Rebel Rebel",
+            "artist": "David Bowie"
+        },
+        {
+            "song": "Baba O'Riley",
+            "artist": "The Who"
+        },
+        {
+            "song": "Paint It Black",
+            "artist": "The Rolling Stones"
+        },
+        {
+            "song": "Light My Fire",
+            "artist": "The Doors"
+        },
+        {
+            "song": "All Along the Watchtower",
+            "artist": "The Jimi Hendrix Experience"
+        },
+        {
+            "song": "Lola",
+            "artist": "The Kinks"
+        },
+        {
+            "song": "Go Your Own Way",
+            "artist": "Fleetwood Mac"
+        },
+        {
+            "song": "Space Oddity",
+            "artist": "David Bowie"
+        }
+    ]
+}
+"""
+            self.write(json_songs)
 
         except Exception as e:
             server_log.error(e)

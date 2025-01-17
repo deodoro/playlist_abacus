@@ -49,58 +49,58 @@ export const fetchPlaylists = async () => {
 }
 
 export const fetchSongs = async (playlistId) => {
-    const token = await getToken();
-    const limit = 100; // Max limit per Spotify API request for tracks
-    let offset = 0;
-    let allSongs = [];
-    let hasMore = true;
+   const token = await getToken()
+   const limit = 100 // Max limit per Spotify API request for tracks
+   let offset = 0
+   let allSongs = []
+   let hasMore = true
 
-    while (hasMore) {
-        const response = await fetch(
-            `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+   while (hasMore) {
+      const response = await fetch(
+         `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
+         {
+            headers: {
+               Authorization: `Bearer ${token}`,
+            },
+         }
+      )
 
-        const data = await handleResponse(response);
-        allSongs = allSongs.concat(data.items); // Append new tracks
+      const data = await handleResponse(response)
+      allSongs = allSongs.concat(data.items) // Append new tracks
 
-        offset += limit; // Move to the next page
-        hasMore = data.items.length === limit; // Continue if there are more tracks
-    }
+      offset += limit // Move to the next page
+      hasMore = data.items.length === limit // Continue if there are more tracks
+   }
 
-    return allSongs;
-};
+   return allSongs
+}
 
 export const fetchFavoriteSongs = async () => {
-    const token = await getToken();
-    const limit = 50; // Max limit per Spotify API request for saved tracks
-    let offset = 0;
-    let allFavorites = [];
-    let hasMore = true;
+   const token = await getToken()
+   const limit = 50 // Max limit per Spotify API request for saved tracks
+   let offset = 0
+   let allFavorites = []
+   let hasMore = true
 
-    while (hasMore) {
-        const response = await fetch(
-            `https://api.spotify.com/v1/me/tracks?limit=${limit}&offset=${offset}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+   while (hasMore) {
+      const response = await fetch(
+         `https://api.spotify.com/v1/me/tracks?limit=${limit}&offset=${offset}`,
+         {
+            headers: {
+               Authorization: `Bearer ${token}`,
+            },
+         }
+      )
 
-        const data = await handleResponse(response);
-        allFavorites = allFavorites.concat(data.items.map((item) => item.track)); // Extract tracks
+      const data = await handleResponse(response)
+      allFavorites = allFavorites.concat(data.items.map((item) => item.track)) // Extract tracks
 
-        offset += limit; // Move to the next page
-        hasMore = data.items.length === limit; // Continue if there are more tracks
-    }
+      offset += limit // Move to the next page
+      hasMore = data.items.length === limit // Continue if there are more tracks
+   }
 
-    return allFavorites;
-};
+   return allFavorites
+}
 
 export const getUserId = async () => {
    const token = await getToken() // Replace with your token-fetching logic
@@ -359,7 +359,10 @@ export const pollSpotifyState = async () => {
    if (!response.ok) {
       if (response.status === 204) {
          // No content means nothing is playing
-         return { uri: null, position: null }
+         return {
+            uri: null,
+            position: null,
+         }
       }
       throw new Error(`Error: ${response.status}`)
    }
@@ -375,7 +378,10 @@ export const pollSpotifyState = async () => {
       }
    }
 
-   return { uri: null, position: null }
+   return {
+      uri: null,
+      position: null,
+   }
 }
 
 export const getSongDetails = async (songUri) => {
@@ -405,41 +411,89 @@ export const getSongDetails = async (songUri) => {
 }
 
 export const addToFavorites = async (uri) => {
-    const trackId = uri.substr(uri.lastIndexOf(":")+1)
-    const token = await getToken();
+   const trackId = uri.substr(uri.lastIndexOf(':') + 1)
+   const token = await getToken()
 
-    const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids: [trackId] }),
-    });
+   const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+      method: 'PUT',
+      headers: {
+         Authorization: `Bearer ${token}`,
+         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+         ids: [trackId],
+      }),
+   })
 
-    if (!response.ok) {
-        throw new Error(`Failed to add track to favorites: ${response.status}`);
-    }
+   if (!response.ok) {
+      throw new Error(`Failed to add track to favorites: ${response.status}`)
+   }
 
-    return `Track ${trackId} added to favorites`;
-};
+   return `Track ${trackId} added to favorites`
+}
 
 export const removeFromFavorites = async (uri) => {
-    const trackId = uri.substr(uri.lastIndexOf(":")+1)
-    const token = await getToken();
+   const trackId = uri.substr(uri.lastIndexOf(':') + 1)
+   const token = await getToken()
 
-    const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
-        method: 'DELETE',
-        headers: {
-            Authorization: `Bearer ${token}`,
+   const response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+      method: 'DELETE',
+      headers: {
+         Authorization: `Bearer ${token}`,
+         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+         ids: [trackId],
+      }),
+   })
+
+   if (!response.ok) {
+      throw new Error(
+         `Failed to remove track from favorites: ${response.status}`
+      )
+   }
+
+   return `Track ${trackId} removed from favorites`
+}
+
+export const createCustomPlaylist = async (
+   samplePlaylists,
+   instructions,
+   length,
+   lengthUnit,
+   favoriteSongs
+) => {
+   const token = await getToken() // Assuming you have a method to fetch the token
+   const url = '/api/playlist' // API endpoint
+
+   // Construct the request body
+   const playlistRequest = {
+      length: length.toString(), // Convert to string if necessary
+      length_unit: lengthUnit,
+      instructions: instructions,
+      playlists: samplePlaylists,
+      favorites: favoriteSongs,
+   }
+
+   try {
+      const response = await fetch(url, {
+         method: 'POST',
+         headers: {
             'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids: [trackId] }),
-    });
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+         },
+         body: JSON.stringify(playlistRequest), // Convert the request body to JSON
+      })
 
-    if (!response.ok) {
-        throw new Error(`Failed to remove track from favorites: ${response.status}`);
-    }
+      if (!response.ok) {
+         throw new Error(`Failed to create playlist: ${response.status}`)
+      }
 
-    return `Track ${trackId} removed from favorites`;
-};
+      const data = await response.json() // Parse the response
+      console.log('Playlist created successfully:', data)
+      return data // Return the created playlist data
+   } catch (error) {
+      console.error('Error creating playlist:', error.message)
+      throw error // Rethrow the error for further handling
+   }
+}
