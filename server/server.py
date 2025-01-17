@@ -35,16 +35,16 @@ server_logger.addHandler(ch)
 chat_logger.addHandler(ch)
 
 # Create file handler which logs even debug messages
-fh = logging.FileHandler('/var/log/app/server.log')
+fh = logging.FileHandler('server.log')
 fh.setLevel(logging.INFO)
 fh.setFormatter(logging.Formatter(log_format, datefmt=date_format))
 server_logger.addHandler(fh)  # Add file handler to server logger
 
 # Create another file handler for the 'chats.log' file
-fh2 = logging.FileHandler('/var/log/app/chats.log')
-fh2.setLevel(logging.INFO)
-fh2.setFormatter(logging.Formatter(log_format, datefmt=date_format))
-chat_logger.addHandler(fh2)  # Add file handler to chat logger
+#fh2 = logging.FileHandler('/var/log/app/chats.log')
+#fh2.setLevel(logging.INFO)
+#fh2.setFormatter(logging.Formatter(log_format, datefmt=date_format))
+#chat_logger.addHandler(fh2)  # Add file handler to chat logger
 
 # API server boot
 if __name__ == '__main__':
@@ -54,10 +54,10 @@ if __name__ == '__main__':
         # Associating URI handers
         cache = {}
         urls = [
-            (r'/api/chat', ChatHandler),
+#           (r'/api/chat', ChatHandler),
             (r'/api/playlist', PlaylistHandler),
-            (r"/()", tornado.web.StaticFileHandler, {"path": '/var/www', "default_filename": "index.html"}),
-            (r"/(.*)", tornado.web.StaticFileHandler, {"path": '/var/www'}),
+#            (r"/()", tornado.web.StaticFileHandler, {"path": '/var/www', "default_filename": "index.html"}),
+#            (r"/(.*)", tornado.web.StaticFileHandler, {"path": '/var/www'}),
         ]
 
         # Tornado initialization
